@@ -81,7 +81,7 @@ namespace RealPolicePlugin
                 offenceClassType = OffencesManager.OffencesRegistred[index];
                 securityCounter++;
             }
-
+            this.LastOffenceCreated = offenceClassType;
             return (AbstractOffenceEvent)Activator.CreateInstance(offenceClassType, new object[] { vehicle });
         }
 
