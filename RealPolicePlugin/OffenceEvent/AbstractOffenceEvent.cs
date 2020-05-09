@@ -82,11 +82,6 @@ namespace RealPolicePlugin.OffenceEvent
 
         protected void HandleAttack(bool withWeapon)
         {
-
-            if (Rage.Native.NativeFunction.Natives.S_PED_SPRINTING<bool>(this.Driver))
-            {
-                this.Driver.Tasks.ClearImmediately();
-            }
             this.Driver.BlockPermanentEvents = true;
             if (this.Driver.IsInVehicle(this.Vehicle, true))
             {

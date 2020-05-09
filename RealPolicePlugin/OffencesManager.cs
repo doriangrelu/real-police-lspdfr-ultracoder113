@@ -106,7 +106,8 @@ namespace RealPolicePlugin
             return false == this.isAllEventsCreated() &&
                 false == Functions.IsCalloutRunning() &&
                 null == Functions.GetActivePursuit() &&
-                false == Functions.IsPlayerPerformingPullover();
+                false == Functions.IsPlayerPerformingPullover() &&
+                false == Game.IsPaused;
         }
 
         private void HandleCleanUsedVehicles()
