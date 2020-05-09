@@ -12,7 +12,7 @@ namespace RealPolicePlugin.OffenceEvent
     class SuspectVehicle : AbstractOffenceEvent
     {
 
-        public const string OFFENCE_MESSAGE = "~o~Suspicious vehicle spoted";
+        public const string OFFENCE_MESSAGE = "~o~Suspicious vehicle detected";
 
         private float OldSpeed = 0.0F;
 
@@ -68,6 +68,18 @@ namespace RealPolicePlugin.OffenceEvent
                         Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
                         this.IsPerformedPullOver = true;
                         this.IsEventRunning = false;
+                        if (Tools.HavingChance(1, 5))
+                        {
+                            this.AddFiber(GameFiber.StartNew(delegate
+                            {
+                                bool withWeapon = true;
+                                if (Tools.HavingChance(5, 10))
+                                {
+                                    withWeapon = false;
+                                }
+                                this.HandleAttack(withWeapon);
+                            }));
+                        }
                         break;
                     }
                     if (PedsManager.IsAwayFromLocalPlayer(this.Driver.Position))
@@ -79,6 +91,7 @@ namespace RealPolicePlugin.OffenceEvent
                     {
                         this.HandleRecklessDrinving();
                     }
+
                 }
             }
             catch (Exception e)

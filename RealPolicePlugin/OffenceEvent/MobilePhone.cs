@@ -14,7 +14,7 @@ namespace RealPolicePlugin.OffenceEvent
     class MobilePhone : AbstractOffenceEvent
     {
 
-        public const string OFFENCE_MESSAGE = "Driving using phone while driving car";
+        public const string OFFENCE_MESSAGE = "Driver using phone";
 
 
         public MobilePhone(Vehicle vehicle) : base(vehicle, MobilePhone.OFFENCE_MESSAGE)
@@ -50,7 +50,7 @@ namespace RealPolicePlugin.OffenceEvent
                     Logger.LogTrivial("Event is running");
                     if (Functions.IsPlayerPerformingPullover())
                     {
-                        Logger.Log("Offence tips: ~r~" + MobilePhone.OFFENCE_MESSAGE, true);
+                        Logger.Log("Police tips: ~r~" + MobilePhone.OFFENCE_MESSAGE, true);
                         this.IsEventRunning = false;
                         this.IsPerformedPullOver = true; 
                         this.Driver.Tasks.ClearSecondary();

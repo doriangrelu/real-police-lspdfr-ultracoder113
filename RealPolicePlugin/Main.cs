@@ -14,6 +14,9 @@ namespace RealPolicePlugin
     public class Main : Plugin
     {
 
+
+        public const bool IN_PRODUCTION = true; 
+
         public static List<GameFiber> Fibers = new List<GameFiber>();
 
 

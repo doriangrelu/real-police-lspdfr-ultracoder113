@@ -13,7 +13,7 @@ namespace RealPolicePlugin.OffenceEvent
     class Reckless : AbstractOffenceEvent
     {
 
-        public const string OFFENCE_MESSAGE = "Reckless driving~r~(reckless)";
+        public const string OFFENCE_MESSAGE = "Reckless driving";
 
         private float OldSpeed;
         private float OldDriveInertia;
@@ -66,7 +66,7 @@ namespace RealPolicePlugin.OffenceEvent
                 {
                     newSpeed = this.OldSpeed * 1.9F; // add 90 percent
                     if (newSpeed < 20f) { newSpeed = 50F; }
-                    if (newSpeed > 40f) { newSpeed = 70F; }
+                    if (newSpeed > 40f) { newSpeed = 55F; }
 
                     this.Vehicle.HandlingData.DriveInertia = this.OldDriveInertia * 1.7f;
                     this.Vehicle.HandlingData.InitialDriveForce = this.OldInitialDriveForce * 1.7f;
@@ -86,11 +86,20 @@ namespace RealPolicePlugin.OffenceEvent
                             Rage.Native.NativeFunction.Natives.SET_DRIVE_TASK_DRIVING_STYLE(this.Driver, 786603);
                         }
                     })); 
+                 
 
                     while (this.IsEventRunning)
                     {
-                        GameFiber.Yield();
-                        Rage.Native.NativeFunction.Natives.SET_DRIVE_TASK_DRIVING_STYLE(this.Driver, 786603);
+
+                        this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
+                        GameFiber.Sleep(600);
+                        this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveRight);
+                        GameFiber.Sleep(250);
+                        this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveLeft);
+                        GameFiber.Sleep(500);
+                        this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, newSpeed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
+                        GameFiber.Sleep(4500);
+                       
                         if (Functions.IsPlayerPerformingPullover())
                         {
                             Logger.Log("Police tips: ~b~Reckless driving", true); 

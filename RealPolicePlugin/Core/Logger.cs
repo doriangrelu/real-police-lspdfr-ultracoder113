@@ -27,12 +27,15 @@ namespace RealPolicePlugin.Core
 
         public static void LogTrivial(string Message)
         {
-            Game.LogTrivial("Real Police Plugin By Ultracoder113: " + Message); 
+            if (false == Main.IN_PRODUCTION)
+            {
+                Game.LogTrivial("Real Police Plugin By Ultracoder113: " + Message); 
+            }
         }
 
-        public static void DisplayNotification(string Message)
+        public static uint DisplayNotification(string Message)
         {
-            Game.DisplayNotification(Message);  
+            return Game.DisplayNotification(Message);  
         }
     }
 }

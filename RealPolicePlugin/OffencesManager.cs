@@ -18,7 +18,7 @@ namespace RealPolicePlugin
         private const int LOOP_SECURITY = 20;
         private List<AbstractOffenceEvent> CurrentsEvents = new List<AbstractOffenceEvent>();
         private static List<Type> OffencesRegistred = new List<Type>();
-        private const int C_MAX_CURRENT_EVENT = 3;
+        private const int C_MAX_CURRENT_EVENT = 4;
         private Type LastOffenceCreated = null;
         private Random Random;
 
@@ -111,9 +111,9 @@ namespace RealPolicePlugin
 
         private void HandleCleanUsedVehicles()
         {
-            if(this.PlateAlreadyUsed.Count > 15)
+            if (this.PlateAlreadyUsed.Count > 15)
             {
-                this.PlateAlreadyUsed.Clear(); 
+                this.PlateAlreadyUsed.Clear();
             }
         }
 
@@ -131,7 +131,15 @@ namespace RealPolicePlugin
                 Logger.LogTrivial("Can't create event: To many | Callout running | In pursuit | Is performing pullover");
                 return null;
             }
-            this.HandleCleanUsedVehicles(); 
+
+            if (Tools.HavingChance(5, 10))
+            {
+                Logger.LogTrivial("Can't create event: Bad Chance");
+                GameFiber.Sleep(3000);
+                return null;
+            }
+
+            this.HandleCleanUsedVehicles();
             AbstractOffenceEvent offenceEvent = null;
             int loopSecurity = 3;
             int loopCounter = 0;

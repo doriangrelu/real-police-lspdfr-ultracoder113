@@ -10,13 +10,11 @@ namespace RealPolicePlugin.Core
     class StopTimer
     {
 
-
-        private const int MIN_WAIT_EVENT = 30000; // Milliseconds - Use ini file ... - 30 seconds
-        private const int MAX_WAIT_EVENT = 120000; // 2 MIN
-
+        private const int MIN_WAIT_EVENT = 60000; // Milliseconds - Use ini file ... - 60 seconds
+        private const int MAX_WAIT_EVENT = 240000; // 4 MIN
 
         private int MinWait = 0;
-        private int MaxWait = 0; 
+        private int MaxWait = 0;
 
         private static StopTimer _Instance = null;
         private Stopwatch _NextEventStopwatch = null;
@@ -27,18 +25,18 @@ namespace RealPolicePlugin.Core
         /// <summary>
         /// Not a singleton because evevry evenets manager have an instance
         /// </summary>
-        public StopTimer(): this(StopTimer.MIN_WAIT_EVENT, StopTimer.MAX_WAIT_EVENT)
-        {   
+        public StopTimer() : this(StopTimer.MIN_WAIT_EVENT, StopTimer.MAX_WAIT_EVENT)
+        {
         }
 
         public StopTimer(int MinWait, int MaxWait)
         {
             if (MinWait >= MaxWait)
             {
-                throw new Exception("Max Wait must be superior to Min Wait time..."); 
+                throw new Exception("Max Wait must be superior to Min Wait time...");
             }
             this.MinWait = MinWait;
-            this.MaxWait = MaxWait; 
+            this.MaxWait = MaxWait;
             this._NextEventStopwatch = new Stopwatch();
             this._Random = new Random();
         }
@@ -55,12 +53,11 @@ namespace RealPolicePlugin.Core
             this._NextEventStopwatch.Start();
         }
 
-
         public int Timer
         {
             get
             {
-                return this._NextEventTimer; 
+                return this._NextEventTimer;
             }
         }
 
