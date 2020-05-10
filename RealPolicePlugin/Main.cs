@@ -66,10 +66,25 @@ namespace RealPolicePlugin
                 {
                     while (true)
                     {
-                        GameFiber.Yield();
-                        this.HandleOffencesEvents();
-                        GameFiber.Sleep(3000);
-                        //FiberGarbage.Collect(Main.Fibers);
+                        try
+                        {
+                            GameFiber.Yield();
+
+                            if(false == Functions.IsCalloutRunning())
+                            {
+                                this.HandleOffencesEvents();
+                            }
+
+                            GameFiber.Sleep(3000);
+
+                        } catch(Exception e)
+                        {
+                            Logger.LogTrivial("START - EXCEPTION");
+                            Logger.LogTrivial(e.Message);
+                            Logger.LogTrivial(e.StackTrace);
+                            Logger.LogTrivial("END - EXCEPTION");
+                        }
+                       
                     }
                 });
             }

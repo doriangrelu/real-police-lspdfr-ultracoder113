@@ -77,7 +77,7 @@ namespace RealPolicePlugin.OffenceEvent
 
                     this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, newSpeed, Rage.VehicleDrivingFlags.FollowTraffic | Rage.VehicleDrivingFlags.YieldToCrossingPedestrians | Rage.VehicleDrivingFlags.AllowWrongWay);
 
-
+                    this.HandleSafeEventRunning();
                     this.AddFiber(GameFiber.StartNew(delegate
                     {
                         while (this.IsEventRunning)
@@ -85,24 +85,16 @@ namespace RealPolicePlugin.OffenceEvent
                             GameFiber.Yield();
                             Rage.Native.NativeFunction.Natives.SET_DRIVE_TASK_DRIVING_STYLE(this.Driver, 786603);
                         }
-                    })); 
-                 
+                    }));
+
 
                     while (this.IsEventRunning)
                     {
-
-                        this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
-                        GameFiber.Sleep(600);
-                        this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveRight);
-                        GameFiber.Sleep(250);
-                        this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveLeft);
-                        GameFiber.Sleep(500);
-                        this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, newSpeed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
-                        GameFiber.Sleep(4500);
-                       
-                        if (Functions.IsPlayerPerformingPullover())
+                        this.HandleRecklessDrinving();
+                        GameFiber.Yield();
+                        if (this.IsPulledOverDriver())
                         {
-                            Logger.Log("Police tips: ~b~Reckless driving", true); 
+                            Logger.Log("Police tips: ~b~Reckless driving", true);
                             this.IsPerformedPullOver = true;
                             this.IsEventRunning = false;
                             break;
@@ -112,10 +104,7 @@ namespace RealPolicePlugin.OffenceEvent
                             this.IsEventRunning = false;
                             break;
                         }
-                        if (Tools.HavingChance(3, 4))
-                        {
-                            this.HandleRecklessDrinving();
-                        }
+                        this.HandleSafeEventRunning();
                     }
                 }
             }

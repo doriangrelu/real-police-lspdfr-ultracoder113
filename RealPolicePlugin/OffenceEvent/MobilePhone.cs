@@ -45,26 +45,21 @@ namespace RealPolicePlugin.OffenceEvent
 
                 while (this.IsEventRunning)
                 {
-                    Logger.LogTrivial("SLEEP in WHILE");
                     GameFiber.Sleep(200); 
-                    Logger.LogTrivial("Event is running");
-                    if (Functions.IsPlayerPerformingPullover())
+                    if (this.IsPulledOverDriver())
                     {
                         Logger.Log("Police tips: ~r~" + MobilePhone.OFFENCE_MESSAGE, true);
                         this.IsEventRunning = false;
                         this.IsPerformedPullOver = true; 
                         this.Driver.Tasks.ClearSecondary();
-                        Logger.LogTrivial("BREAK");
                         break;
                     }
-
                     if (PedsManager.IsAwayFromLocalPlayer(this.Driver.Position))
                     {
-                        Logger.LogTrivial("Loast the offender");
                         this.IsEventRunning = false;
-                        Logger.LogTrivial("BREAK");
                         break;
                     }
+                    this.HandleSafeEventRunning();
                 }
             }
             catch (Exception e)
@@ -75,7 +70,6 @@ namespace RealPolicePlugin.OffenceEvent
             }
             finally
             {
-                Logger.LogTrivial("FINALLY");
                 this.EndEvent();
             }
         }

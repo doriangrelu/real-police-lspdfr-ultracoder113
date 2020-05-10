@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rage;
 using LSPD_First_Response.Mod.API;
+using RealPolicePlugin.GameManager;
 
 namespace RealPolicePlugin.OffenceEvent
 {
@@ -20,12 +21,15 @@ namespace RealPolicePlugin.OffenceEvent
         private List<GameFiber> Fibers = new List<GameFiber>();
         protected bool IsPerformedPullOver = false;
         protected bool IsEventRunning = true;
-
+        protected Random random = null;
         public GameFiber MainFiber { get; set; }
+        private bool RecklessDriving = false;
+
 
 
         public AbstractOffenceEvent(Vehicle vehicle, String offenceMessage)
         {
+            this.random = new Random();
             this.Driver = vehicle.Driver;
             this.Vehicle = vehicle;
             this.Driver.IsPersistent = true;
@@ -68,31 +72,90 @@ namespace RealPolicePlugin.OffenceEvent
             OffencesManager.Instance.HandleEndEventOffence(this);
         }
 
-
+        /// <summary>
+        /// If callout is running delete events for better experience and performances
+        /// </summary>
+        protected void HandleSafeEventRunning()
+        {
+            if (Functions.IsCalloutRunning())
+            {
+                this.IsEventRunning = false;
+            }
+        }
+        /// <summary>
+        /// Dangerous driving
+        /// </summary>
         protected void HandleRecklessDrinving()
         {
+            if (this.RecklessDriving)
+            {
+                return;
+            }
+
+            float speed = this.Vehicle.Speed;
+            if (VehicleManager.ConvertRageToKMH(speed) <= 50)
+            {
+                speed = VehicleManager.ConvertKMHToRage((float)this.random.Next(70, 110));
+            }
+            else
+            {
+                if (VehicleManager.ConvertRageToKMH(speed) <= 110)
+                {
+                    speed = VehicleManager.ConvertKMHToRage((float)this.random.Next(110, 150));
+                }
+            }
+
             this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveLeft);
             GameFiber.Sleep(200);
+
+            if (Tools.HavingChance(7, 10))
+            {
+                this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
+                GameFiber.Sleep(600);
+                this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.BurnOut);
+                GameFiber.Sleep(200);
+                this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, speed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
+                GameFiber.Sleep(6000);
+            }
             this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveRight);
             GameFiber.Sleep(300);
-            this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, this.Vehicle.Speed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
+            this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, speed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
             GameFiber.Sleep(6000);
+            this.RecklessDriving = true;
+        }
+
+        protected bool IsPulledOverDriver()
+        {
+            if (Functions.IsPlayerPerformingPullover())
+            {
+                Ped currentSuspect = Functions.GetPulloverSuspect(Functions.GetCurrentPullover());
+                return currentSuspect == this.Driver;
+            }
+            return false;
         }
 
 
         protected void HandleAttack(bool withWeapon)
         {
-            this.Driver.BlockPermanentEvents = true;
+            if (Tools.HavingChance(8, 10))
+            {
+                this.Driver.BlockPermanentEvents = true;
+            }
+
+
+
             if (this.Driver.IsInVehicle(this.Vehicle, true))
             {
+                if (Tools.HavingChance(2, 10))
+                {
+                    this.Driver.Tasks.SmashCarWindow();
+                    GameFiber.Wait(600);
+                }
                 this.Driver.Tasks.LeaveVehicle(LeaveVehicleFlags.LeaveDoorOpen).WaitForCompletion(3000);
+                this.Driver.Tasks.Clear();
             }
 
-
-            if (Rage.Native.NativeFunction.Natives.S_PED_SPRINTING<bool>(this.Driver))
-            {
-                this.Driver.Tasks.ClearImmediately();
-            }
+            GameFiber.Wait(600);
 
             if (withWeapon)
             {
@@ -100,12 +163,15 @@ namespace RealPolicePlugin.OffenceEvent
                 {
                     this.HandleDriverHaveWeapon();
                 }
+                GameFiber.Wait(600);
                 Rage.Native.NativeFunction.Natives.TaskCombatPed(this.Driver, PedsManager.LocalPlayer(), 0, 16);
             }
             else
             {
-                this.Driver.Tasks.FightAgainst(PedsManager.LocalPlayer(), 3000);
+                this.Driver.KeepTasks = true;
+                this.Driver.Tasks.FightAgainst(PedsManager.LocalPlayer());
             }
+
         }
 
 

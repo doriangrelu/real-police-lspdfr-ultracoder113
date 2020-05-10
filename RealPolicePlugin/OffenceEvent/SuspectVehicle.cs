@@ -63,7 +63,7 @@ namespace RealPolicePlugin.OffenceEvent
                 while (this.IsEventRunning)
                 {
                     GameFiber.Yield();
-                    if (Functions.IsPlayerPerformingPullover())
+                    if (this.IsPulledOverDriver())
                     {
                         Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
                         this.IsPerformedPullOver = true;
@@ -87,11 +87,11 @@ namespace RealPolicePlugin.OffenceEvent
                         this.IsEventRunning = false;
                         break;
                     }
-                    if (Tools.HavingChance(1, 4))
+                    if (Tools.HavingChance(2, 6))
                     {
                         this.HandleRecklessDrinving();
                     }
-
+                    this.HandleSafeEventRunning();
                 }
             }
             catch (Exception e)

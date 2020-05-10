@@ -22,6 +22,7 @@ namespace RealPolicePlugin
         private Type LastOffenceCreated = null;
         private Random Random;
 
+      
         private List<string> PlateAlreadyUsed = new List<string>();
 
         private StopTimer Timer = null;
