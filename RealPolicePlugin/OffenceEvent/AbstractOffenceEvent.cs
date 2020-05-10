@@ -23,7 +23,7 @@ namespace RealPolicePlugin.OffenceEvent
         protected bool IsEventRunning = true;
         protected Random random = null;
         public GameFiber MainFiber { get; set; }
-        private bool RecklessDriving = false;
+        protected bool RecklessDriving = false;
 
 
 
@@ -105,6 +105,11 @@ namespace RealPolicePlugin.OffenceEvent
                 }
             }
 
+            if (false == this.IsEventRunning)
+            {
+                return;
+            }
+
             this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveLeft);
             GameFiber.Sleep(200);
 
@@ -117,10 +122,23 @@ namespace RealPolicePlugin.OffenceEvent
                 this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, speed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
                 GameFiber.Sleep(6000);
             }
+
+            if (false == this.IsEventRunning)
+            {
+                this.Driver.Tasks.ClearSecondary();
+                return;
+            }
+
             this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveRight);
             GameFiber.Sleep(300);
+            if (false == this.IsEventRunning)
+            {
+                this.Driver.Tasks.ClearSecondary();
+                return;
+            }
             this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, speed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians));
             GameFiber.Sleep(6000);
+            this.Driver.Tasks.ClearSecondary();
             this.RecklessDriving = true;
         }
 

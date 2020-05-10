@@ -87,11 +87,12 @@ namespace RealPolicePlugin.OffenceEvent
                         this.IsEventRunning = false;
                         break;
                     }
-                    if (Tools.HavingChance(2, 6))
+                    if (Tools.HavingChance(2, 6) && false == this.RecklessDriving)
                     {
                         this.HandleRecklessDrinving();
                     }
                     this.HandleSafeEventRunning();
+                    GameFiber.Sleep(300);
                 }
             }
             catch (Exception e)

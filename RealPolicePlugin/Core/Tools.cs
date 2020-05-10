@@ -39,7 +39,7 @@ namespace RealPolicePlugin.Core
             {
                 return false;
             }
-            return GetNextInt(1, Total + 1) <= NumberChance; // exclusive Max next int ^^ 
+            return NumberChance <= GetNextInt(1, Total + 1); // exclusive Max next int ^^ 
         }
 
         public static T GetRandomInArray<T>(T[] Array)

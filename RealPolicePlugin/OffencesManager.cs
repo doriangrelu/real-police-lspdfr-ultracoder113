@@ -18,11 +18,11 @@ namespace RealPolicePlugin
         private const int LOOP_SECURITY = 20;
         private List<AbstractOffenceEvent> CurrentsEvents = new List<AbstractOffenceEvent>();
         private static List<Type> OffencesRegistred = new List<Type>();
-        private const int C_MAX_CURRENT_EVENT = 4;
+        private const int C_MAX_CURRENT_EVENT = 2;
         private Type LastOffenceCreated = null;
         private Random Random;
 
-      
+
         private List<string> PlateAlreadyUsed = new List<string>();
 
         private StopTimer Timer = null;
@@ -134,7 +134,7 @@ namespace RealPolicePlugin
                 return null;
             }
 
-            if (Tools.HavingChance(5, 10))
+            if (Tools.HavingChance(10, 100))
             {
                 Logger.LogTrivial("Can't create event: Bad Chance");
                 GameFiber.Sleep(3000);
@@ -158,6 +158,8 @@ namespace RealPolicePlugin
                             false == vehicle.HasSiren &&
                             vehicle.Driver != PedsManager.LocalPlayer() &&
                             false == vehicle.IsBoat &&
+                            false == vehicle.IsBike &&
+                            false == vehicle.IsBicycle &&
                             false == this.PlateAlreadyUsed.Contains(vehicle.LicensePlate))
                         {
                             this.PlateAlreadyUsed.Add(vehicle.LicensePlate);
@@ -168,7 +170,7 @@ namespace RealPolicePlugin
                     }
                 }
                 loopSecurity++;
-                GameFiber.Sleep(1000);
+                GameFiber.Sleep(4000);
             }
             this.CurrentsEvents.Add(offenceEvent);
             return offenceEvent;
