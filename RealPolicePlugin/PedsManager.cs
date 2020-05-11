@@ -19,9 +19,14 @@ namespace RealPolicePlugin
         }
 
 
+        public static float Distance(Vector3 position)
+        {
+            return Vector3.Distance(PedsManager.LocalPlayer().Position, position); 
+        }
+
         public static bool IsAwayFromLocalPlayer(Vector3 position)
         {
-            return Vector3.Distance(Game.LocalPlayer.Character.Position, position) > PedsManager.MAX_DISTANCE; 
+            return PedsManager.Distance(position) > PedsManager.MAX_DISTANCE; 
         }
 
         public static bool isPedInPursuit(Ped ped)
