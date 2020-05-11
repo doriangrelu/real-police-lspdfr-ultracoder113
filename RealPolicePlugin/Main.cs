@@ -15,7 +15,7 @@ namespace RealPolicePlugin
     {
 
 
-        public const bool IN_PRODUCTION = true; 
+        public const bool IN_PRODUCTION = false; 
 
         public static List<GameFiber> Fibers = new List<GameFiber>();
 

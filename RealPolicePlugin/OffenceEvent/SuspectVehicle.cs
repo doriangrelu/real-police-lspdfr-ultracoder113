@@ -68,18 +68,6 @@ namespace RealPolicePlugin.OffenceEvent
                         Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
                         this.IsPerformedPullOver = true;
                         this.IsEventRunning = false;
-                        if (Tools.HavingChance(1, 5))
-                        {
-                            this.AddFiber(GameFiber.StartNew(delegate
-                            {
-                                bool withWeapon = true;
-                                if (Tools.HavingChance(5, 10))
-                                {
-                                    withWeapon = false;
-                                }
-                                this.HandleAttack(withWeapon);
-                            }));
-                        }
                         break;
                     }
                     if (PedsManager.IsAwayFromLocalPlayer(this.Driver.Position))
@@ -87,7 +75,7 @@ namespace RealPolicePlugin.OffenceEvent
                         this.IsEventRunning = false;
                         break;
                     }
-                    if (Tools.HavingChance(2, 6) && false == this.RecklessDriving)
+                    if (Tools.HavingChance(30, 100) && false == this.RecklessDriving)
                     {
                         this.HandleRecklessDrinving();
                     }
