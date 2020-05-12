@@ -4,6 +4,7 @@ using Rage.Native;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
 using RealPolicePlugin.Core;
+using RealPolicePlugin.GameManager;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,9 +18,12 @@ namespace RealPolicePlugin
     class ParkingTicketManager
     {
 
+
+
         private const float MAXIMUL_VEH_DIST = 4F;
         private string[] Vowels = new string[] { "a", "e", "o", "i", "u" };
         private string[] Numbers = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+        private static bool IsTowParkedVehicle = false;
 
 
         private List<string> TicketsVehicles = new List<string>();
@@ -30,6 +34,7 @@ namespace RealPolicePlugin
 
         private static UIMenuItem _DangerousParkedVehicle;
         private static UIMenuItem _MissingTicketsParkedVehicle;
+        //private static UIMenuItem _Informations;
 
 
         private static ParkingTicketManager _Instance = null;
@@ -37,15 +42,19 @@ namespace RealPolicePlugin
         private ParkingTicketManager()
         {
             _MenuPool = new MenuPool();
-            _MainMenu = new UIMenu("Parking ticket", "~b~ By Ultracoder 113");
+
             _MenuPool.Add(_MainMenu);
 
-            _DangerousParkedVehicle = new UIMenuItem("Dangerous parked vehicle", "Issue ticket and tow vehicle");
-            _MissingTicketsParkedVehicle = new UIMenuItem("Bad parked vehicle", "Issue ticket");
+            // _Informations = new UIMenuItem("Informations");
+            _DangerousParkedVehicle = new UIMenuItem("Dangerous parked vehicle - 375$", "Issue ticket and tow vehicle");
+            _MissingTicketsParkedVehicle = new UIMenuItem("Awkward parked vehicle - 275$", "Issue ticket");
 
-            _DangerousParkedVehicle.BackColor = Color.Red;
-            _MissingTicketsParkedVehicle.BackColor = Color.Blue;
 
+            //     _Informations.ForeColor = Color.Blue;
+            _DangerousParkedVehicle.ForeColor = Color.Red;
+            _MissingTicketsParkedVehicle.ForeColor = Color.Orange;
+
+            // _MainMenu.AddItem(_Informations);
             _MainMenu.AddItem(_DangerousParkedVehicle);
             _MainMenu.AddItem(_MissingTicketsParkedVehicle);
 
@@ -69,28 +78,21 @@ namespace RealPolicePlugin
 
         public void Handle()
         {
-            Game.DisplayHelp("Initialized Parking tickets manager");
             while (true)
             {
                 GameFiber.Yield();
                 if (Game.IsKeyDown(System.Windows.Forms.Keys.F5) && !_MenuPool.IsAnyMenuOpen() && this.CanCreateTicket())
                 {
                     _MainMenu.Visible = !_MainMenu.Visible;
-                } else
-                {
-                    if (Game.IsKeyDown(System.Windows.Forms.Keys.F5))
-                    {
-                        Game.DisplayHelp("Key down ! "); 
-                    }
                 }
-                _MenuPool.ProcessMenus(); 
+                _MenuPool.ProcessMenus();
             }
         }
 
         public static void OnItemSelect(UIMenu sender, UIMenuItem selectedItem, int index)
         {
             if (sender != _MainMenu) return;
-
+            IsTowParkedVehicle = selectedItem == _DangerousParkedVehicle;
             if (selectedItem == _DangerousParkedVehicle || selectedItem == _MissingTicketsParkedVehicle)
             {
                 _MenuPool.CloseAllMenus();
@@ -161,6 +163,9 @@ namespace RealPolicePlugin
             modelName = char.ToUpper(modelName[0]) + modelName.Substring(1);
 
 
+
+            //_Informations.Text = modelName + " - " + vehicle.LicensePlate;
+
             Game.DisplayNotification("~g~Traffic Officer ~s~is reporting an ~r~illegally parked vehicle.");
             Game.DisplayNotification("~b~Processing a parking ticket for " + lexemArticle + " ~r~" + modelName + "~b~ with licence plate: ~r~" + licencePlate + ".");
             Game.DisplayNotification("~b~The offending ~r~" + modelName + " ~b~is parked on ~o~" + World.GetStreetName(vehicle.Position) + ".");
@@ -172,7 +177,6 @@ namespace RealPolicePlugin
             NativeFunction.Natives.ATTACH_ENTITY_TO_ENTITY(notepad, PedsManager.LocalPlayer(), boneIndex, 0f, 0f, 0f, 0f, 0f, 0f, true, false, false, false, 2, 1);
             PedsManager.LocalPlayer().Tasks.PlayAnimation("veh@busted_std", "issue_ticket_cop", 1f, AnimationFlags.Loop | AnimationFlags.UpperBodyOnly).WaitForCompletion(8000);
             notepad.Delete();
-
 
             vehicle.IsPersistent = false;
             PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_enter", 0.7f, AnimationFlags.UpperBodyOnly | AnimationFlags.StayInEndFrame).WaitForCompletion(1500);
@@ -186,8 +190,84 @@ namespace RealPolicePlugin
                 this.TicketsVehicles.Clear();
             }
 
-            this.TicketsVehicles.Add(vehicle.LicensePlate);
+            if (IsTowParkedVehicle)
+            {
+                IsTowParkedVehicle = false;
+                this.HandleTowVehicle(vehicle);
+            }
 
+            this.TicketsVehicles.Add(vehicle.LicensePlate);
+        }
+
+
+        private void HandleTowVehicle(Vehicle vehicle)
+        {
+            Model towModel = VehicleManager.GetTowModel(vehicle);
+
+            Vehicle towTruck = VehicleManager.SpawnVehicle(vehicle.Position, towModel);
+            Ped driver = towTruck.CreateRandomDriver();
+            towTruck.IsPersistent = true;
+            towTruck.CanTiresBurst = false;
+            towTruck.IsInvincible = true;
+            driver.IsInvincible = true;
+
+            Blip towBlip = towTruck.AttachBlip();
+            Blip vehBlip = vehicle.AttachBlip();
+
+            vehBlip.Color = Color.DarkRed;
+            vehBlip.Scale = 0.5F;
+            towBlip.Color = System.Drawing.Color.Orange;
+            towBlip.Scale = 0.5F;
+
+            VehicleManager.driveToEntity(driver, towTruck, vehicle, false);
+            Rage.Native.NativeFunction.Natives.START_VEHICLE_HORN(towTruck, 5000, 0, true);
+            if (towTruck.Speed > 15f)
+            {
+                NativeFunction.Natives.SET_VEHICLE_FORWARD_SPEED(towTruck, 15f);
+            }
+
+            driver.Tasks.PerformDrivingManeuver(VehicleManeuver.GoForwardStraightBraking);
+            GameFiber.Sleep(600);
+            driver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
+            towTruck.IsSirenOn = true;
+            GameFiber.Wait(2000);
+
+            if (towModel == VehicleManager.FlatbedModel)
+            {
+                vehicle.AttachTo(towTruck, 20, new Vector3(-0.5f, -5.75f, 1.005f), Rotator.Zero);
+            }
+            else
+            {
+                if (towTruck.HasTowArm)
+                {
+                    vehicle.Position = towTruck.GetOffsetPosition(Vector3.RelativeBack * 7f);
+                    vehicle.Heading = towTruck.Heading;
+                    towTruck.TowVehicle(vehicle, true);
+                }
+                else
+                {
+                    vehicle.Delete();
+                    Game.LogTrivial("Tow truck model is not registered as a tow truck ingame - if this is a custom vehicle, contact the vehicle author.");
+                }
+                Game.HideHelp();
+
+            }
+
+            GameFiber.Wait(2000);
+
+            if (towBlip.IsValid() && towBlip.Exists())
+            {
+                towBlip.Delete();
+            }
+
+            if (vehBlip.IsValid() && vehBlip.Exists())
+            {
+                vehBlip.Delete();
+            }
+
+            driver.Tasks.PerformDrivingManeuver(VehicleManeuver.GoForwardStraight).WaitForCompletion(600);
+            driver.Tasks.CruiseWithVehicle(25f);
+            GameFiber.Wait(1000);
 
 
         }
