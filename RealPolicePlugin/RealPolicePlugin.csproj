@@ -47,6 +47,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,6 +74,7 @@
     <Compile Include="OffenceEvent\Reckless.cs" />
     <Compile Include="OffenceEvent\SuspectVehicle.cs" />
     <Compile Include="OffencesManager.cs" />
+    <Compile Include="ParkingTicketManager.cs" />
     <Compile Include="PedsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

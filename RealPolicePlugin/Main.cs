@@ -64,6 +64,7 @@ namespace RealPolicePlugin
 
                 GameFiber.StartNew(delegate
                 {
+                    ParkingTicketManager.Instance.Handle(); 
                     while (true)
                     {
                         try
