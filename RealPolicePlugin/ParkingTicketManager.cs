@@ -192,10 +192,10 @@ namespace RealPolicePlugin
 
             if (IsTowParkedVehicle)
             {
+                Game.DisplayNotification("~g~The tow truck is on its way to  ~s~remove the ~r~vehicle. ~o~You can go back on duty. ");
                 IsTowParkedVehicle = false;
                 this.HandleTowVehicle(vehicle);
             }
-
             this.TicketsVehicles.Add(vehicle.LicensePlate);
         }
 
