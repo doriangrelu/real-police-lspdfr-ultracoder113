@@ -64,20 +64,18 @@ namespace RealPolicePlugin
 
                 GameFiber.StartNew(delegate
                 {
-                    ParkingTicketManager.Instance.Handle(); 
+                    ParkingTicketManager.Instance.Handle();
+                    PulloverManager.Instance.Handle(); 
                     while (true)
                     {
                         try
                         {
                             GameFiber.Yield();
-
                             if(false == Functions.IsCalloutRunning())
                             {
                                 this.HandleOffencesEvents();
                             }
-
                             GameFiber.Sleep(3000);
-
                         } catch(Exception e)
                         {
                             Logger.LogTrivial("START - EXCEPTION");

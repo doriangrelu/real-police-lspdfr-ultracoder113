@@ -66,6 +66,7 @@ namespace RealPolicePlugin.OffenceEvent
                     if (this.IsPulledOverDriver())
                     {
                         Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
+                        Functions.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 SUSPICIOUS PERSON INSERT_05 IN_OR_ON_POSITION INTRO_02 OUTRO_03 NOISE_SHORT INTRO_01 CODE4_ADAM OFFICER_INTRO_02 PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02 INTRO_01", PedsManager.LocalPlayer().Position);
                         this.IsPerformedPullOver = true;
                         this.IsEventRunning = false;
                         break;
