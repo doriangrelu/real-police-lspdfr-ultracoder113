@@ -15,7 +15,7 @@ namespace RealPolicePlugin
     {
 
 
-        public const bool IN_PRODUCTION = false; 
+        public const bool IN_PRODUCTION = false;
 
         public static List<GameFiber> Fibers = new List<GameFiber>();
 
@@ -61,29 +61,30 @@ namespace RealPolicePlugin
             if (OnDuty)
             {
                 this.HandleInitialize();
-
+                GameFiber.StartNew(ParkingTicketManager.Instance.Handle);
+                GameFiber.StartNew(PulloverManager.Instance.Handle);
                 GameFiber.StartNew(delegate
                 {
-                    ParkingTicketManager.Instance.Handle();
-                    PulloverManager.Instance.Handle(); 
+
                     while (true)
                     {
                         try
                         {
                             GameFiber.Yield();
-                            if(false == Functions.IsCalloutRunning())
+                            if (false == Functions.IsCalloutRunning())
                             {
                                 this.HandleOffencesEvents();
                             }
                             GameFiber.Sleep(3000);
-                        } catch(Exception e)
+                        }
+                        catch (Exception e)
                         {
                             Logger.LogTrivial("START - EXCEPTION");
                             Logger.LogTrivial(e.Message);
                             Logger.LogTrivial(e.StackTrace);
                             Logger.LogTrivial("END - EXCEPTION");
                         }
-                       
+
                     }
                 });
             }

@@ -5,6 +5,7 @@ using RealPolicePlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,9 +17,6 @@ namespace RealPolicePlugin
 
 
         private static PulloverManager _Instance = null;
-
-
-        private static string[] numbers = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 
         private Blip Blip;
@@ -86,8 +84,8 @@ namespace RealPolicePlugin
             this.Blip.Color = System.Drawing.Color.Yellow;
             playerPatrolCar.BlipSiren(true);
 
-            Vector3 CheckPointPosition = Game.LocalPlayer.Character.GetOffsetPosition(new Vector3(0f, 8f, -1f));
-            this.Checkpoint = NativeFunction.Natives.CREATE_CHECKPOINT<int>(46, CheckPointPosition.X, CheckPointPosition.Y, CheckPointPosition.Z, CheckPointPosition.X, CheckPointPosition.Y, CheckPointPosition.Z, 3.5f, 255, 0, 0, 255, 0); ;
+            this.CheckPointPosition = Game.LocalPlayer.Character.GetOffsetPosition(new Vector3(0f, 8f, -1f));
+            this.Checkpoint = NativeFunction.Natives.CREATE_CHECKPOINT<int>(46, this.CheckPointPosition.X, this.CheckPointPosition.Y, this.CheckPointPosition.Z, this.CheckPointPosition.X, this.CheckPointPosition.Y, this.CheckPointPosition.Z, 3.5f, 255, 0, 0, 255, 0); ;
 
             float xOffset = 0;
             float yOffset = 0;
@@ -112,40 +110,40 @@ namespace RealPolicePlugin
                     return false;
                 }
 
-                if (Game.IsKeyDown(Keys.Enter))
-                {
-                    return true;
-                }
-
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_RESET, "NumPad5")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_RESET, "NumPad5")))
                 {
                     xOffset = 0;
                     yOffset = 0;
                     zOffset = 0;
                 }
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_FORWARD, "NumPad8")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_FORWARD, "NumPad8")))
                 {
                     yOffset++;
                 }
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_BACK, "NumPad2")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_BACK, "NumPad2")))
                 {
                     yOffset--;
                 }
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_RIGHT, "NumPad6")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_RIGHT, "NumPad6")))
                 {
                     xOffset++;
                 }
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_LEFT, "NumPad4")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_LEFT, "NumPad4")))
                 {
                     xOffset--;
                 }
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_UP, "NumPad9")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_UP, "NumPad9")))
                 {
                     zOffset++;
                 }
-                if (Game.IsKeyDown(Configuration.Instance.ReadKey(K_POS_DOWN, "NumPad3")))
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Configuration.Instance.ReadKey(K_POS_DOWN, "NumPad3")))
                 {
                     zOffset--;
+                }
+
+                if (KeysManager.IsKeyDownRightNowComputerCheck(Keys.Enter))
+                {
+                    return true;
                 }
 
                 NativeFunction.Natives.DELETE_CHECKPOINT(this.Checkpoint);
@@ -158,10 +156,12 @@ namespace RealPolicePlugin
         public void SetCustomPulloverLocation()
         {
             this.isFollowing = true;
+            Logger.Log("Set Pullover");
             try
             {
                 if (!Functions.IsPlayerPerformingPullover() || false == PedsManager.LocalPlayer().IsInAnyVehicle(false))
                 {
+                    Logger.Log("Cancelled");
                     this.isFollowing = false;
                     return;
                 }
@@ -171,6 +171,7 @@ namespace RealPolicePlugin
 
                 if (null == pulledOverCar || (false == pulledOverCar.IsValid() || (pulledOverCar == playerPatrolCar)))
                 {
+                    Logger.Log("No car or no valid car");
                     this.isFollowing = false;
                     return;
                 }
@@ -183,8 +184,10 @@ namespace RealPolicePlugin
                 }
 
                 Ped pulledDriver = pulledOverCar.Driver;
+                pulledDriver.IsPersistent = true;
                 if (!pulledDriver.IsPersistent || Functions.GetPulloverSuspect(Functions.GetCurrentPullover()) != pulledDriver)
                 {
+                    Logger.Log("Not persistent");
                     this.isFollowing = false;
                     return;
                 }
@@ -193,6 +196,7 @@ namespace RealPolicePlugin
                 NativeFunction.Natives.DELETE_CHECKPOINT(this.Checkpoint);
                 if (SuccessfulSet)
                 {
+                    Logger.Log("Success drive to");
                     try
                     {
                         Game.LocalPlayer.Character.Tasks.PlayAnimation("friends@frj@ig_1", "wave_c", 1f, AnimationFlags.SecondaryTask | AnimationFlags.UpperBodyOnly);
@@ -220,7 +224,7 @@ namespace RealPolicePlugin
 
                         Rage.Task drivetask = pulledDriver.Tasks.DriveToPosition(CheckPointPosition, 12f, VehicleDrivingFlags.DriveAroundVehicles | VehicleDrivingFlags.DriveAroundObjects | VehicleDrivingFlags.AllowMedianCrossing | VehicleDrivingFlags.YieldToCrossingPedestrians);
                         GameFiber.Wait(700);
-                        if (false == drivetask.IsActive || Vector3.Distance(pulledDriver.Position, CheckPointPosition) < 1.5f)
+                        if (false == drivetask.IsActive || Vector3.Distance(pulledDriver.Position, CheckPointPosition) < 1.5f) //exit if driver end task or is away from the expected position
                         {
                             break;
                         }
@@ -238,8 +242,9 @@ namespace RealPolicePlugin
             catch (Exception e)
             {
                 NativeFunction.Natives.DELETE_CHECKPOINT(this.Checkpoint);
-                Game.LogTrivial(e.ToString());
-                Game.LogTrivial("CustomPulloverLocationError handled.");
+                Game.LogTrivial("---------- EXCEPTION ---------");
+                Game.LogTrivial(e.Message);
+                Game.LogTrivial("---------- END  ---------");
             }
             finally
             {

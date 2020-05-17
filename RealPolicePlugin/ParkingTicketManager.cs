@@ -34,7 +34,7 @@ namespace RealPolicePlugin
         private static UIMenuItem _DangerousParkedVehicle;
         private static UIMenuItem _MissingTicketsParkedVehicle;
         private static UIMenuItem _Infos;
-
+        
 
         private List<string> TicketsVehicles = new List<string>();
         //private static UIMenuItem _Informations;
@@ -49,7 +49,6 @@ namespace RealPolicePlugin
             ParkingTicketManager._MainMenu = new UIMenu("Parking ticket", "By Ultracodder113");
 
             ParkingTicketManager._MenuPool.Add(ParkingTicketManager._MainMenu);
-
 
             ParkingTicketManager._DangerousParkedVehicle = new UIMenuItem("Dangerous parked vehicle - 375$");
             ParkingTicketManager._MissingTicketsParkedVehicle = new UIMenuItem("Awkward parked vehicle - 275$");
@@ -199,7 +198,7 @@ namespace RealPolicePlugin
             vehicle.IsPersistent = false;
             PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_enter", 0.7f, AnimationFlags.UpperBodyOnly | AnimationFlags.StayInEndFrame).WaitForCompletion(1500);
             GameFiber.Sleep(2000);
-            Functions.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 ILLEGALLY_PARKED_VEHICLE IN_OR_ON_POSITION INTRO_02  OUTRO_03 TARGET_VEHICLE_LICENCE_PLATE UHH" + licencePlateAudioMessage + " NOISE_SHORT INTRO_01 CODE4_ADAM OFFICER_INTRO_02 PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02 INTRO_01", PedsManager.LocalPlayer().Position);
+            Functions.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 ILLEGALLY_PARKED_VEHICLE IN_OR_ON_POSITION INTRO_02  OUTRO_03 TARGET_VEHICLE_LICENCE_PLATE UHH" + licencePlateAudioMessage + " NOISE_SHORT CODE4_ADAM OFFICER_INTRO_02 PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
             PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_exit", 1.0f, AnimationFlags.UpperBodyOnly);
 
 
