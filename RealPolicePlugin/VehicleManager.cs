@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using Rage;
 using LSPD_First_Response.Mod.API;
 using RealPolicePlugin.Core;
-using RealPolicePlugin.DB;
-using RealPolicePlugin.Entity;
+
 using Rage.Native;
 
-namespace RealPolicePlugin.GameManager
+namespace RealPolicePlugin
 {
     class VehicleManager
     {
@@ -50,9 +49,19 @@ namespace RealPolicePlugin.GameManager
             return (expected * kmReference) / rageReference;
         }
 
-        public Vehicle[] getNearbyVehicles(int arraySize = 10)
+        public Vehicle[] GetNearbyVehicles(int arraySize = 10)
         {
             return Game.LocalPlayer.Character.GetNearbyVehicles(arraySize);
+        }
+
+        public static Vehicle GetNearbyVehicle()
+        {
+            Vehicle[] nearbyVehicles = PedsManager.LocalPlayer().GetNearbyVehicles(1); //Get one nearby vehicle
+            if (nearbyVehicles.Length == 0)
+            {
+                return null;
+            }
+            return nearbyVehicles[0];
         }
 
         public static VehicleManager Instance

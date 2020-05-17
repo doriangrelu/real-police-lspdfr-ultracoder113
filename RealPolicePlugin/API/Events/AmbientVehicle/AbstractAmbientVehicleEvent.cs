@@ -6,12 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Rage;
-using LSPD_First_Response.Mod.API;
-using RealPolicePlugin.GameManager;
+using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
-namespace RealPolicePlugin.OffenceEvent
+namespace RealPolicePlugin.API.Events.AmbientVehicle
 {
-    abstract class AbstractOffenceEvent
+    abstract class AbstractAmbientVehicleEvent : EventArgs
     {
 
         public Ped Driver { get; }
@@ -20,14 +19,14 @@ namespace RealPolicePlugin.OffenceEvent
         public Blip Blip = null;
         private List<GameFiber> Fibers = new List<GameFiber>();
         protected bool IsPerformedPullOver = false;
-        protected bool IsEventRunning = true;
+        protected bool IsEventRunning { get; set; }
         protected Random random = null;
         public GameFiber MainFiber { get; set; }
         protected bool RecklessDriving = false;
 
 
 
-        public AbstractOffenceEvent(Vehicle vehicle, String offenceMessage)
+        public AbstractAmbientVehicleEvent(Vehicle vehicle, String offenceMessage)
         {
             this.random = new Random();
             this.Driver = vehicle.Driver;
@@ -44,9 +43,23 @@ namespace RealPolicePlugin.OffenceEvent
             Game.RemoveNotification(notification);
         }
 
-        abstract public void HandleEvent();
 
-        protected virtual void EndEvent()
+        public void Prepare()
+        {
+            this.IsEventRunning = true;
+        }
+
+        public bool IsRunning()
+        {
+            return this.IsEventRunning; 
+        }
+
+        abstract public void OnBeforeStartEvent();
+
+        abstract public void OnProcessEvent();
+
+
+        public virtual void OnEndEvent()
         {
             Logger.LogTrivial("Request Garbage mobile phone event");
             this.IsEventRunning = false;
@@ -54,7 +67,7 @@ namespace RealPolicePlugin.OffenceEvent
             {
                 this.Blip.Delete();
             }
-            if (false == Functions.IsPlayerPerformingPullover() && false == this.IsPerformedPullOver)
+            if (false == FunctionsLSPDFR.IsPlayerPerformingPullover() && false == this.IsPerformedPullOver)
             {
                 bool isPedNotInPursuit = false == PedsManager.isPedInPursuit(this.Driver);
                 if (this.Driver.Exists() && isPedNotInPursuit)
@@ -68,7 +81,7 @@ namespace RealPolicePlugin.OffenceEvent
                 }
                 Logger.LogTrivial("Ending Garbage mobile phone event");
             }
-            this.CleanFibers();
+
             OffencesManager.Instance.HandleEndEventOffence(this);
         }
 
@@ -77,7 +90,7 @@ namespace RealPolicePlugin.OffenceEvent
         /// </summary>
         protected void HandleSafeEventRunning()
         {
-            if (Functions.IsCalloutRunning())
+            if (FunctionsLSPDFR.IsCalloutRunning())
             {
                 this.IsEventRunning = false;
             }
@@ -144,9 +157,9 @@ namespace RealPolicePlugin.OffenceEvent
 
         protected bool IsPulledOverDriver()
         {
-            if (Functions.IsPlayerPerformingPullover())
+            if (FunctionsLSPDFR.IsPlayerPerformingPullover())
             {
-                Ped currentSuspect = Functions.GetPulloverSuspect(Functions.GetCurrentPullover());
+                Ped currentSuspect = FunctionsLSPDFR.GetPulloverSuspect(FunctionsLSPDFR.GetCurrentPullover());
                 return currentSuspect == this.Driver;
             }
             return false;
@@ -198,23 +211,5 @@ namespace RealPolicePlugin.OffenceEvent
             this.Driver.Inventory.GiveNewWeapon(new WeaponAsset("WEAPON_MICROSMG"), 500, true);
         }
 
-
-        protected void AddFiber(GameFiber fiber)
-        {
-            this.Fibers.Add(fiber);
-        }
-
-        /// <summary>
-        /// Clean every sub fibers
-        /// </summary>
-        private void CleanFibers()
-        {
-            FiberGarbage.Collect(this.Fibers, true); // Kill All alive fibers 
-            if (null != this.MainFiber)
-            {
-                //Main.Fibers.Add(this.MainFiber);
-            }
-
-        }
     }
 }

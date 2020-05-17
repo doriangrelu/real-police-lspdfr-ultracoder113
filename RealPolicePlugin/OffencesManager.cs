@@ -5,18 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LSPD_First_Response.Mod.API;
-using RealPolicePlugin.GameManager;
 using RealPolicePlugin.OffenceEvent;
 using System.Collections.ObjectModel;
 using RealPolicePlugin.Core;
 using System.Runtime.CompilerServices;
+using RealPolicePlugin.API.Events.AmbientVehicle;
 
 namespace RealPolicePlugin
 {
     class OffencesManager
     {
         private const int LOOP_SECURITY = 20;
-        private List<AbstractOffenceEvent> CurrentsEvents = new List<AbstractOffenceEvent>();
+        private List<AbstractAmbientVehicleEvent> CurrentsEvents = new List<AbstractAmbientVehicleEvent>();
         private static List<Type> OffencesRegistred = new List<Type>();
         private const int C_MAX_CURRENT_EVENT = 2;
         private Type LastOffenceCreated = null;
@@ -67,7 +67,7 @@ namespace RealPolicePlugin
         }
 
 
-        private AbstractOffenceEvent GenerateRandomOffenceInstance(Vehicle vehicle)
+        private AbstractAmbientVehicleEvent GenerateRandomOffenceInstance(Vehicle vehicle)
         {
             int index = 0;
             int securityCounter = 0;
@@ -83,7 +83,7 @@ namespace RealPolicePlugin
                 securityCounter++;
             }
             this.LastOffenceCreated = offenceClassType;
-            return (AbstractOffenceEvent)Activator.CreateInstance(offenceClassType, new object[] { vehicle });
+            return (AbstractAmbientVehicleEvent)Activator.CreateInstance(offenceClassType, new object[] { vehicle });
         }
 
 
@@ -94,7 +94,7 @@ namespace RealPolicePlugin
             return this.CurrentsEvents.Count >= OffencesManager.C_MAX_CURRENT_EVENT;
         }
 
-        public void HandleEndEventOffence(AbstractOffenceEvent offenceEvent)
+        public void HandleEndEventOffence(AbstractAmbientVehicleEvent offenceEvent)
         {
             if (this.CurrentsEvents.Contains(offenceEvent))
             {
@@ -119,7 +119,7 @@ namespace RealPolicePlugin
             }
         }
 
-        public AbstractOffenceEvent GetRandomOffenceEvent()
+        public AbstractAmbientVehicleEvent GetRandomOffenceEvent()
         {
 
             if (false == this.Timer.CanCreateEvent())
@@ -142,12 +142,12 @@ namespace RealPolicePlugin
             }
 
             this.HandleCleanUsedVehicles();
-            AbstractOffenceEvent offenceEvent = null;
+            AbstractAmbientVehicleEvent offenceEvent = null;
             int loopSecurity = 3;
             int loopCounter = 0;
             while (null == offenceEvent && loopCounter < loopSecurity)
             {
-                Vehicle[] vehicles = VehicleManager.Instance.getNearbyVehicles(10);
+                Vehicle[] vehicles = VehicleManager.Instance.GetNearbyVehicles(10);
                 foreach (Vehicle vehicle in vehicles)
                 {
                     if (vehicle.Exists())
