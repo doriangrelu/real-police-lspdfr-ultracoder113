@@ -47,6 +47,7 @@ namespace RealPolicePlugin.API.Handlers
                 if (null == _Infos)
                 {
                     _Infos = new UIMenuItem("None");
+                    _Infos.ForeColor = Color.Blue;
                     Menu.AddItem(_Infos);
                 }
 
@@ -70,7 +71,6 @@ namespace RealPolicePlugin.API.Handlers
 
                     _DangerousParkedVehicle.ForeColor = Color.Red;
                     _MissingTicketsParkedVehicle.ForeColor = Color.Orange;
-                    _Infos.ForeColor = Color.Blue;
 
                     _Menu.AddItem(_DangerousParkedVehicle);
                     _Menu.AddItem(_MissingTicketsParkedVehicle);
@@ -85,17 +85,14 @@ namespace RealPolicePlugin.API.Handlers
 
         public override void Handle()
         {
-            while (true)
+            while (Main.IsAlive)
             {
-                while (true)
+                GameFiber.Yield();
+                if (KeysManager.IsKeyDownComputerCheck(Configuration.Instance.ReadKey(K_OPEN_MENU, "F5")) && !UICustomMenuManager.MenuPool.IsAnyMenuOpen() && this.CanCreateTicket())
                 {
-                    GameFiber.Yield();
-                    if (KeysManager.IsKeyDownComputerCheck(Configuration.Instance.ReadKey(K_OPEN_MENU, "F5")) && !UICustomMenuManager.MenuPool.IsAnyMenuOpen() && this.CanCreateTicket())
-                    {
-                        Menu.Visible = !Menu.Visible;
-                    }
-                    UICustomMenuManager.MenuPool.ProcessMenus();
+                    Menu.Visible = !Menu.Visible;
                 }
+                UICustomMenuManager.MenuPool.ProcessMenus();
             }
         }
 

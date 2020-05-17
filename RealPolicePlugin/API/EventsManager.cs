@@ -7,6 +7,7 @@ using RealPolicePlugin.OffenceEvent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,29 @@ namespace RealPolicePlugin.API
 {
     class EventsManager
     {
+
+
+        private static List<GameFiber> _Fibers = new List<GameFiber>();
+
+
+
+        public static void ForceEndFibers()
+        {
+            foreach (GameFiber fiber in _Fibers)
+            {
+                if (fiber.IsAlive)
+                {
+                    fiber.Abort();
+                }
+                _Fibers.Remove(fiber); 
+            }
+        }
+
+        public void AddFiber(GameFiber fiber)
+        {
+            _Fibers.Add(fiber);
+        }
+
 
         public static List<I_RealPoliceHandler> InitializeSubscriber()
         {
@@ -41,7 +65,7 @@ namespace RealPolicePlugin.API
         {
             foreach (I_RealPoliceHandler handler in handlers)
             {
-                GameFiber.StartNew(handler.Handle);
+                _Fibers.Add(GameFiber.StartNew(handler.Handle));
             }
         }
 

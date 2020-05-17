@@ -35,7 +35,7 @@ namespace RealPolicePlugin.API.Handlers
         public override void Handle()
         {
 
-            while (true)
+            while (Main.IsAlive)
             {
                 GameFiber.Yield();
                 if (KeysManager.IsKeyCombinationDownComputerCheck(

@@ -27,7 +27,7 @@ namespace RealPolicePlugin.API.Handlers
 
         public override void Handle()
         {
-            while (true)
+            while (Main.IsAlive)
             {
                 try
                 {

@@ -88,14 +88,19 @@ namespace RealPolicePlugin.API
             FunctionsLSPDFR.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 ILLEGALLY_PARKED_VEHICLE IN_OR_ON_POSITION INTRO_02  OUTRO_03 TARGET_VEHICLE_LICENCE_PLATE UHH" + licencePlateAudioMessage + " NOISE_SHORT CODE4_ADAM OFFICER_INTRO_02 PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
             PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_exit", 1.0f, AnimationFlags.UpperBodyOnly);
             ParkingTicketsEventHandler.AlreadyGivedTicketsLicencePlateCollection.Add(vehicle.LicensePlate);
+
         }
 
 
         public static void SetCustomPulloverLocation(CustomPulloverEvent customPulloverEvent)
         {
-
             Blip driverBlip = customPulloverEvent.PulledDriver.AttachBlip();
+            driverBlip.Flash(500, -1);
             driverBlip.Color = System.Drawing.Color.Yellow;
+            if (Tools.HavingChance(2, 10))
+            {
+                customPulloverEvent.PulledDriver.CanAttackFriendlies = true;
+            }
             Vehicle playerPatrolCar = PedsManager.LocalPlayer().CurrentVehicle;
             int checkpoint = 0;
 
@@ -166,54 +171,54 @@ namespace RealPolicePlugin.API
                     NativeFunction.Natives.DELETE_CHECKPOINT(checkpoint);
                     checkpoint = NativeFunction.Natives.CREATE_CHECKPOINT<int>(46, checkPointPosition.X, checkPointPosition.Y, checkPointPosition.Z, checkPointPosition.X, checkPointPosition.Y, checkPointPosition.Z, 3f, 255, 0, 0, 255, 0);
                     NativeFunction.Natives.SET_CHECKPOINT_CYLINDER_HEIGHT(checkpoint, 2f, 2f, 2f);
-                    NativeFunction.Natives.DELETE_CHECKPOINT(checkpoint);
+                }
+                NativeFunction.Natives.DELETE_CHECKPOINT(checkpoint);
 
-                    if (SuccessfulSet)
+                if (SuccessfulSet)
+                {
+
+                    try
                     {
-
-                        try
+                        playerPatrolCar.BlipSiren(true);
+                        Game.LocalPlayer.Character.Tasks.PlayAnimation("friends@frj@ig_1", "wave_c", 1f, AnimationFlags.SecondaryTask | AnimationFlags.UpperBodyOnly);
+                    }
+                    catch { }
+                    while (true)
+                    {
+                        GameFiber.Yield();
+                        if (Vector3.Distance(customPulloverEvent.PulledDriver.Position, PedsManager.LocalPlayer().Position) > 25f)
                         {
-                            Game.LocalPlayer.Character.Tasks.PlayAnimation("friends@frj@ig_1", "wave_c", 1f, AnimationFlags.SecondaryTask | AnimationFlags.UpperBodyOnly);
+                            Game.DisplaySubtitle("~h~~r~Stay close to the vehicle.", 700);
                         }
-                        catch { }
-                        while (true)
+
+                        if (false == FunctionsLSPDFR.IsPlayerPerformingPullover())
                         {
-                            GameFiber.Yield();
-                            if (Vector3.Distance(customPulloverEvent.PulledDriver.Position, PedsManager.LocalPlayer().Position) > 25f)
-                            {
-                                Game.DisplaySubtitle("~h~~r~Stay close to the vehicle.", 700);
-                            }
-
-                            if (false == FunctionsLSPDFR.IsPlayerPerformingPullover())
-                            {
-                                Game.DisplayNotification("You cancelled the ~b~Traffic Stop.");
-                                break;
-                            }
-
-                            if (false == PedsManager.LocalPlayer().IsInVehicle(playerPatrolCar, false) || false == CustomPulloverEventHandler.IsAlreadyFollowing)
-                            {
-                                break;
-                            }
-
-
-                            Rage.Task drivetask = customPulloverEvent.PulledDriver.Tasks.DriveToPosition(checkPointPosition, 12f, VehicleDrivingFlags.DriveAroundVehicles | VehicleDrivingFlags.DriveAroundObjects | VehicleDrivingFlags.AllowMedianCrossing | VehicleDrivingFlags.YieldToCrossingPedestrians);
-                            GameFiber.Wait(700);
-                            if (false == drivetask.IsActive || Vector3.Distance(customPulloverEvent.PulledDriver.Position, checkPointPosition) < 1.5f) //exit if driver end task or is away from the expected position
-                            {
-                                break;
-                            }
+                            Game.DisplayNotification("You cancelled the ~b~Traffic Stop.");
+                            break;
                         }
-                        if (customPulloverEvent.pulledVehicle.Exists())
-                        {
-                            if (customPulloverEvent.PulledDriver.Exists())
-                            {
-                                customPulloverEvent.PulledDriver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
 
-                            }
+                        if (false == PedsManager.LocalPlayer().IsInVehicle(playerPatrolCar, false) || false == CustomPulloverEventHandler.IsAlreadyFollowing)
+                        {
+                            break;
+                        }
+
+
+                        Rage.Task drivetask = customPulloverEvent.PulledDriver.Tasks.DriveToPosition(checkPointPosition, 12f, VehicleDrivingFlags.DriveAroundVehicles | VehicleDrivingFlags.DriveAroundObjects | VehicleDrivingFlags.AllowMedianCrossing | VehicleDrivingFlags.YieldToCrossingPedestrians);
+                        GameFiber.Wait(700);
+                        if (false == drivetask.IsActive || Vector3.Distance(customPulloverEvent.PulledDriver.Position, checkPointPosition) < 1.5f) //exit if driver end task or is away from the expected position
+                        {
+                            break;
+                        }
+                    }
+                    if (customPulloverEvent.pulledVehicle.Exists())
+                    {
+                        if (customPulloverEvent.PulledDriver.Exists())
+                        {
+                            customPulloverEvent.PulledDriver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
+
                         }
                     }
                 }
-
             }
             catch (Exception e)
             {
@@ -230,11 +235,10 @@ namespace RealPolicePlugin.API
                 }
                 CustomPulloverEventHandler.IsAlreadyFollowing = false;
             }
+
         }
 
+
     }
-
-
-
 }
 

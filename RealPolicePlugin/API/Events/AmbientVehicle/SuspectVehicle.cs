@@ -38,9 +38,16 @@ namespace RealPolicePlugin.OffenceEvent
                 Rage.Native.NativeFunction.Natives.SET_PED_IS_DRUNK(this.Driver, true);
                 this.OldSpeed = this.Vehicle.Speed;
                 float newSpeed = this.OldSpeed - 4;
-                if (this.OldSpeed <= 15F)
+                if (this.OldSpeed <= 20F)
                 {
-                    newSpeed = 15.5F;
+                    newSpeed = 70F;
+                }
+                else
+                {
+                    if (this.OldSpeed <= 60)
+                    {
+                        newSpeed = 5F;
+                    }
                 }
                 this.Driver.Tasks.CruiseWithVehicle(this.Vehicle, newSpeed, (VehicleDrivingFlags.FollowTraffic | VehicleDrivingFlags.YieldToCrossingPedestrians | VehicleDrivingFlags.AllowWrongWay));
                 GameFiber.StartNew(delegate //Add fiber and clean after !
@@ -66,6 +73,10 @@ namespace RealPolicePlugin.OffenceEvent
             GameFiber.Yield();
             if (this.IsPulledOverDriver())
             {
+                if (Tools.HavingChance(5, 10))
+                {
+                    this.Driver.CanAttackFriendlies = true;
+                }
                 Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
                 FunctionsLSPDFR.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 SUSPICIOUS PERSON IN_OR_ON_POSITION OUTRO_03 NOISE_SHORT CODE4_ADAM PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
                 this.IsPerformedPullOver = true;

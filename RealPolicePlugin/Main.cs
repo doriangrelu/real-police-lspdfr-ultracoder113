@@ -17,6 +17,9 @@ namespace RealPolicePlugin
     {
 
 
+        public static bool IsAlive = true;
+
+
         public const bool IN_PRODUCTION = false;
 
         public static List<GameFiber> Fibers = new List<GameFiber>();
@@ -28,6 +31,8 @@ namespace RealPolicePlugin
 
         public override void Finally()
         {
+            IsAlive = false;
+            EventsManager.ForceEndFibers();
         }
 
         public override void Initialize()
@@ -45,6 +50,7 @@ namespace RealPolicePlugin
                 List<I_RealPoliceHandler> handlers = EventsManager.InitializeSubscriber();
                 EventsManager.HandleAll(handlers);
             }
+
         }
     }
 }
