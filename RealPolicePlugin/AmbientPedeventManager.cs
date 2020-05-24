@@ -13,10 +13,6 @@ namespace RealPolicePlugin
         private AmbientPedEventManager() : base()
         {
             this.timer.HandleTimer();
-
-
-
-            Logger.Log(Main.PedestriantEvent()[0]?.ToString());
         }
 
         public static AmbientPedEventManager Instance

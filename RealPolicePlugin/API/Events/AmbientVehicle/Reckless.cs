@@ -20,9 +20,10 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
         public override void OnProcessEvent()
         {
             this.HandleRecklessDrinving();
-            if (this.IsPulledOverDriver())
+            if (this.IsPulledOverDriver(false))
             {
                 Logger.Log("Police tips: ~b~Reckless driving", true);
+                this.IsOfficerReportCrime();
                 this.IsPerformedPullOver = true;
                 this.IsEventRunning = false;
                 return;

@@ -13,6 +13,7 @@ namespace RealPolicePlugin.API.Events.AmbientPed
         public SuspectPed(Ped entity) : base(entity, MESSAGE)
         {
             this.attackPlayer = Tools.HavingChance(2, 20);
+            this.HandleNotification();
         }
 
 

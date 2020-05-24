@@ -16,6 +16,7 @@ namespace RealPolicePlugin.API.Events.AmbientPed
 
         #region public proterties
         public Ped Pedestrian { get; }
+        public string OffenceMessage { get; }
         public bool IsEventRunning { get; protected set; }
         public Blip BlipArea { get; private set; }
 
@@ -41,20 +42,23 @@ namespace RealPolicePlugin.API.Events.AmbientPed
         public AbstractAmbientPedEvent(Ped ped, String offenceMessage)
         {
             this.random = new Random();
+            OffenceMessage = offenceMessage;
+
             this.Pedestrian = ped;
             this.Pedestrian.IsPersistent = true;
             this.Pedestrian.BlockPermanentEvents = true;
+            this.HandleLifePed(this.Pedestrian);
+        }
 
-            uint notification = Logger.DisplayNotification("New event detected: ~g~" + offenceMessage);
+        protected void HandleNotification()
+        {
+            uint notification = Logger.DisplayNotification("New event detected: ~g~" + this.OffenceMessage);
             GameFiber.Sleep(6000);
             Game.RemoveNotification(notification);
-            Pedestrian = ped;
 
             this.BlipArea = new Blip(this.Pedestrian.Position.Around(5f, 15f), 40F);
             this.BlipArea.Color = System.Drawing.Color.OrangeRed;
             this.BlipArea.Alpha = 0.5f;
-
-            this.HandleLifePed(this.Pedestrian);
         }
 
         protected bool CanCreatedBlipsAndShowHelp()
@@ -64,6 +68,7 @@ namespace RealPolicePlugin.API.Events.AmbientPed
 
         protected void DisplayReportCrimeHelp()
         {
+            Game.HideHelp();
             Game.DisplayHelp("~b~You can press ~o~" + Configuration.Instance.ReadKey("ReportCrime", "J").ToString() + " to ~r~report crime");
         }
 
@@ -71,8 +76,9 @@ namespace RealPolicePlugin.API.Events.AmbientPed
         {
             if (PedsManager.IsNearby(PedsManager.LocalPlayer().Position, this.Pedestrian.Position, 50F) && false == this.isDisplayHelpShowed)
             {
+                Game.HideHelp();
                 this.isDisplayHelpShowed = true;
-                Game.DisplayHelp("You can press ~b~End to ~o~end this event");
+                Game.DisplayHelp("You can press ~b~End to ~o~end this ~g~event");
             }
         }
 
@@ -81,7 +87,7 @@ namespace RealPolicePlugin.API.Events.AmbientPed
         {
             if (this.isDisplayHelpShowed && KeysManager.IsKeyDownComputerCheck(Keys.End))
             {
-                Game.DisplayHelp("You ~g~finish event");
+                Game.DisplayHelp("~b~Officer ~r~ignore ~o~event");
                 this.IsEventRunning = false;
                 return true;
             }

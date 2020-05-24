@@ -15,20 +15,30 @@ namespace RealPolicePlugin.API
     {
 
 
-
         public static void Dispatch()
         {
-            PedsManager.LocalPlayer().Tasks.ClearImmediately();
-            FunctionsLSPDFR.PlayScannerAudio("OFFICER_INTRO_02");
+            Dispatch(true);
+        }
+        public static void Dispatch(bool speak)
+        {
+            if (speak)
+            {
+                PedsManager.LocalPlayer().Tasks.ClearImmediately();
+                FunctionsLSPDFR.PlayScannerAudio("OFFICER_INTRO_02");
 
-            PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_enter", 0.7f, AnimationFlags.UpperBodyOnly | AnimationFlags.StayInEndFrame).WaitForCompletion(1500);
+                PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_enter", 0.7f, AnimationFlags.UpperBodyOnly | AnimationFlags.StayInEndFrame).WaitForCompletion(1500);
 
-            GameFiber.Wait(2000);
-            PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_exit", 1.0f, AnimationFlags.UpperBodyOnly);
-            GameFiber.Wait(500);
+                GameFiber.Wait(2000);
+                PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_exit", 1.0f, AnimationFlags.UpperBodyOnly);
+                GameFiber.Wait(500);
+
+            }
 
             FunctionsLSPDFR.PlayScannerAudioUsingPosition("DISPATCH_INTRO_01  DISP_ATTENTION_UNIT DIV_01 ADAM BEAT_12 WE_HAVE_01 CRIME_RESIST_ARREST IN_OR_ON_POSITION", PedsManager.LocalPlayer().Position); //todo sounds
-            GameFiber.Wait(1000);
+            if (speak)
+            {
+                GameFiber.Wait(1000);
+            }
             Game.DisplayNotification("~b~Officer ~o~report crime, ~r~all units responds code 3");
         }
 

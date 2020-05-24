@@ -1,4 +1,5 @@
-﻿using Rage;
+﻿using LSPD_First_Response.Mod.API;
+using Rage;
 using RealPolicePlugin.Core;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
@@ -23,7 +24,7 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
             this.Driver.BlockPermanentEvents = true;
             this.Driver.IsPersistent = true;
 
-            if (false == isStolenCar && Tools.HavingChance(1, 10))
+            if (false == isStolenCar && Tools.HavingChance(6, 10))
             {
                 AnimationSet drunkAnimation = new AnimationSet("move_m@drunk@verydrunk");
                 drunkAnimation.LoadAndWait();
@@ -66,12 +67,24 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
             GameFiber.Yield();
             if (this.IsPulledOverDriver())
             {
+                if (Tools.HavingChance(4, 10))
+                {
+                    LHandle pursuit = FunctionsLSPDFR.CreatePursuit();
+                    FunctionsLSPDFR.AddPedToPursuit(pursuit, this.Driver);
+                    FunctionsLSPDFR.SetPursuitIsActiveForPlayer(pursuit, true);
+                    FunctionsLSPDFR.PlayScannerAudioUsingPosition("DISPATCH_INTRO_01  DISP_ATTENTION_UNIT DIV_01 ADAM BEAT_12 WE_HAVE_01 CRIME_RESIST_ARREST IN_OR_ON_POSITION", PedsManager.LocalPlayer().Position); //todo sounds
+                    this.hardClean = false;
+                }
+                else
+                {
+                    Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
+                    FunctionsLSPDFR.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 SUSPICIOUS PERSON IN_OR_ON_POSITION OUTRO_03 NOISE_SHORT CODE4_ADAM PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
+                }
                 if (Tools.HavingChance(5, 10))
                 {
                     this.Driver.CanAttackFriendlies = true;
                 }
-                Logger.Log("The driver's behaviour is ~o~supect. You can investigate", true);
-                FunctionsLSPDFR.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 SUSPICIOUS PERSON IN_OR_ON_POSITION OUTRO_03 NOISE_SHORT CODE4_ADAM PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
+
                 this.IsPerformedPullOver = true;
                 this.IsEventRunning = false;
                 return;

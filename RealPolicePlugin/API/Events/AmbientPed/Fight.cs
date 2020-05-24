@@ -55,6 +55,10 @@ namespace RealPolicePlugin.API.Events.AmbientPed
                 Logger.Log("Missing many peds");
                 this.IsEventRunning = false;
             }
+            else
+            {
+                this.HandleNotification();
+            }
         }
 
 

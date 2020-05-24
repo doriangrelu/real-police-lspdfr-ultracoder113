@@ -11,7 +11,7 @@ namespace RealPolicePlugin.API.Events.AmbientPed
 
         public PublicIntoxication(Ped entity) : base(entity, MESSAGE)
         {
-
+            this.HandleNotification();
         }
 
         public override void OnBeforeStartEvent()

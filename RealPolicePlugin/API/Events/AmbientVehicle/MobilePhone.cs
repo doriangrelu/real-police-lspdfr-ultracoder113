@@ -36,9 +36,10 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
         public override void OnProcessEvent()
         {
             GameFiber.Sleep(200);
-            if (this.IsPulledOverDriver())
+            if (this.IsPulledOverDriver(false))
             {
                 Logger.Log("Police tips: ~r~" + MobilePhone.OFFENCE_MESSAGE, true);
+                this.IsOfficerReportCrime();
                 this.IsEventRunning = false;
                 this.IsPerformedPullOver = true;
                 this.Driver.Tasks.ClearSecondary();

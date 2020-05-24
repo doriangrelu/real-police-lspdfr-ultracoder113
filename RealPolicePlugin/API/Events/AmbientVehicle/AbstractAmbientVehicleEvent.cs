@@ -1,13 +1,11 @@
-﻿using Rage;
+﻿using LSPD_First_Response.Mod.API;
+using Rage;
+using RealPolicePlugin.API.Interfaces;
 using RealPolicePlugin.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rage;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
-using RealPolicePlugin.API.Interfaces;
 
 namespace RealPolicePlugin.API.Events.AmbientVehicle
 {
@@ -25,6 +23,8 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
         public GameFiber MainFiber { get; set; }
         protected bool RecklessDriving = false;
 
+        protected bool hardClean = true;
+        protected bool canReportCrime = false;
 
 
         public AbstractAmbientVehicleEvent(Vehicle vehicle, String offenceMessage)
@@ -68,7 +68,7 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
             {
                 this.Blip.Delete();
             }
-            if (false == FunctionsLSPDFR.IsPlayerPerformingPullover() && false == this.IsPerformedPullOver)
+            if (this.hardClean && false == FunctionsLSPDFR.IsPlayerPerformingPullover() && false == this.IsPerformedPullOver)
             {
                 bool isPedNotInPursuit = false == PedsManager.IsPedInPursuit(this.Driver);
                 if (this.Driver.Exists() && isPedNotInPursuit)
@@ -127,7 +127,7 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
             this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.SwerveLeft);
             GameFiber.Sleep(200);
 
-            if (Tools.HavingChance(7, 10))
+            if (Tools.HavingChance(9, 10))
             {
                 this.Driver.Tasks.PerformDrivingManeuver(VehicleManeuver.Wait);
                 GameFiber.Sleep(600);
@@ -158,10 +158,38 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
 
         protected bool IsPulledOverDriver()
         {
+            return this.IsPulledOverDriver(false);
+        }
+
+        protected bool IsPulledOverDriver(bool isCanReportCrime)
+        {
             if (FunctionsLSPDFR.IsPlayerPerformingPullover())
             {
                 Ped currentSuspect = FunctionsLSPDFR.GetPulloverSuspect(FunctionsLSPDFR.GetCurrentPullover());
-                return currentSuspect == this.Driver;
+                bool isDriverPulledOver = currentSuspect == this.Driver;
+                if (isDriverPulledOver && isCanReportCrime)
+                {
+                    Game.DisplayHelp("~b~You can press ~o~" + Configuration.Instance.ReadKey("ReportCrime", "J").ToString() + " to ~r~report crime");
+                    this.canReportCrime = true;
+                }
+
+                return isDriverPulledOver;
+            }
+            return false;
+        }
+
+        protected bool IsOfficerReportCrime()
+        {
+            if (this.canReportCrime && KeysManager.IsKeyDownComputerCheck(Configuration.Instance.ReadKey("ReportCrime", "J")))
+            {
+                LHandle pursuit = FunctionsLSPDFR.CreatePursuit();
+                FunctionsLSPDFR.AddPedToPursuit(pursuit, this.Driver);
+                this.hardClean = false;
+                this.IsEventRunning = false;
+                FunctionsLSPDFR.AddPedToPursuit(pursuit, this.Driver);
+                FunctionsLSPDFR.SetPursuitIsActiveForPlayer(pursuit, true);
+                Functions.Dispatch(false);
+                return true;
             }
             return false;
         }

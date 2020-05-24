@@ -1,5 +1,7 @@
-﻿using Rage;
+﻿using LSPD_First_Response.Mod.API;
+using Rage;
 using RealPolicePlugin.Core;
+using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
 namespace RealPolicePlugin.API.Events.AmbientVehicle
 {
@@ -49,6 +51,17 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
             if (this.IsPulledOverDriver())
             {
                 Logger.Log("Police tips: ~b~Speeder driving (~)", true);
+
+                if (Tools.HavingChance(5, 15))
+                {
+                    LHandle pursuit = FunctionsLSPDFR.CreatePursuit();
+                    FunctionsLSPDFR.AddPedToPursuit(pursuit, this.Driver);
+                    this.hardClean = false;
+                    FunctionsLSPDFR.SetPursuitIsActiveForPlayer(pursuit, true);
+                    Functions.Dispatch(false);
+                }
+
+
                 this.IsPerformedPullOver = true;
                 this.IsEventRunning = false;
                 return;

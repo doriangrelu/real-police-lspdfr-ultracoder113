@@ -14,6 +14,18 @@ namespace RealPolicePlugin
     public class Main : Plugin
     {
 
+        /**
+         * TODO 
+         *      ---> Corriger Bug du speeder event
+         *      ---> Revoir proba des events 
+         *      ---> Vérifier Is Dead pour els events cars 
+         *      ---> Affichage du report de crime 
+         *      ---> Créer un Handler particulier pour le report rapide de crime 
+         *      ---> Stop the ped intégration ??? 
+         * 
+         * 
+         * */
+
 
         public static bool IsAlive = true;
 
