@@ -1,24 +1,26 @@
 ﻿using Rage;
-using RealPolicePlugin.API.Events.AmbientVehicle;
+using RealPolicePlugin.API.Events.AmbientPed;
 using RealPolicePlugin.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
 namespace RealPolicePlugin.API.Handlers
 {
-    class AmbientVehicleEventHandler : AbstractRealPoliceEventHandler<AbstractAmbientVehicleEvent>
+    class AmbientPedEventHandler : AbstractRealPoliceEventHandler<AbstractAmbientPedEvent>
     {
-
 
         private void HandleEvent()
         {
-            AbstractAmbientVehicleEvent offenceEvent = AmbientVehicleEventManager.Instance.GetRandomEvent();
+            AbstractAmbientPedEvent offenceEvent = AmbientPedEventManager.Instance.GetRandomEvent();
             if (null != offenceEvent)
             {
                 this.OnEventHandler(offenceEvent);
             }
         }
-
 
         public override void Handle()
         {
@@ -32,7 +34,6 @@ namespace RealPolicePlugin.API.Handlers
                         this.HandleEvent();
                     }
                     GameFiber.Sleep(3000);
-
                 }
                 catch (Exception e)
                 {
@@ -43,6 +44,11 @@ namespace RealPolicePlugin.API.Handlers
                 }
             }
         }
+
+    
+
+
+
 
     }
 }

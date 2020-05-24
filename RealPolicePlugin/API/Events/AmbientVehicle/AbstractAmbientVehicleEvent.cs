@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Rage;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
+using RealPolicePlugin.API.Interfaces;
 
 namespace RealPolicePlugin.API.Events.AmbientVehicle
 {
-    abstract class AbstractAmbientVehicleEvent : EventArgs
+    abstract class AbstractAmbientVehicleEvent : EventArgs, I_AmbientEvent
     {
 
         public Ped Driver { get; }
@@ -51,7 +52,7 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
 
         public bool IsRunning()
         {
-            return this.IsEventRunning; 
+            return this.IsEventRunning && Main.IsAlive;
         }
 
         abstract public void OnBeforeStartEvent();
@@ -69,7 +70,7 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
             }
             if (false == FunctionsLSPDFR.IsPlayerPerformingPullover() && false == this.IsPerformedPullOver)
             {
-                bool isPedNotInPursuit = false == PedsManager.isPedInPursuit(this.Driver);
+                bool isPedNotInPursuit = false == PedsManager.IsPedInPursuit(this.Driver);
                 if (this.Driver.Exists() && isPedNotInPursuit)
                 {
                     this.Driver.Dismiss();
@@ -82,7 +83,7 @@ namespace RealPolicePlugin.API.Events.AmbientVehicle
                 Logger.LogTrivial("Ending Garbage mobile phone event");
             }
 
-            OffencesManager.Instance.HandleEndEventOffence(this);
+            AmbientVehicleEventManager.Instance.HandleEndEvent(this);
         }
 
         /// <summary>

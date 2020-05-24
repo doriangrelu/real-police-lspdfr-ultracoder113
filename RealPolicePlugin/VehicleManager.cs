@@ -26,6 +26,28 @@ namespace RealPolicePlugin
         {
         }
 
+        public static void InstallCarMod(Vehicle vehicle)
+        {
+            vehicle.Mods.InstallModKit();
+            if ((vehicle.Mods.EngineModCount - 2) >= 0)
+            {
+                vehicle.Mods.EngineModIndex = vehicle.Mods.EngineModCount - 2;
+            }
+
+            if ((vehicle.Mods.ExhaustModCount - 2) >= 0)
+            {
+                vehicle.Mods.ExhaustModIndex = vehicle.Mods.ExhaustModCount - 2;
+            }
+            if ((vehicle.Mods.TransmissionModCount - 2) >= 0)
+            {
+                vehicle.Mods.TransmissionModIndex = vehicle.Mods.TransmissionModCount - 2;
+            }
+            vehicle.Mods.HasTurbo = true;
+            float oldDriveInertia = vehicle.HandlingData.DriveInertia;
+            float oldInitialDriveForce = vehicle.HandlingData.InitialDriveForce;
+
+        }
+
         public static float ConvertKMHToRage(float expected)
         {
             float kmReference = 50F;

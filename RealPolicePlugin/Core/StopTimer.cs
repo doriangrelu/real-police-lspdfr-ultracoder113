@@ -49,6 +49,7 @@ namespace RealPolicePlugin.Core
 
         public void HandleTimer()
         {
+            this.HandleNextWaitDuration(); 
             this._NextEventStopwatch.Reset();
             this._NextEventStopwatch.Start();
         }

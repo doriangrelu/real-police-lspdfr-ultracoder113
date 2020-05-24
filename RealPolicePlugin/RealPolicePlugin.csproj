@@ -58,13 +58,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractAmbientEventManager.cs" />
+    <Compile Include="AmbientPedEventManager.cs" />
+    <Compile Include="API\Events\AmbientPed\AbstractAmbientPedEvent.cs" />
+    <Compile Include="API\Events\AmbientPed\Fight.cs" />
+    <Compile Include="API\Events\AmbientPed\PublicIntoxication.cs" />
+    <Compile Include="API\Events\AmbientPed\SuspectPed.cs" />
+    <Compile Include="API\Events\AmbientVehicle\Speeder.cs" />
+    <Compile Include="API\Events\SpeedVehicleEvent.cs" />
     <Compile Include="API\Handlers\AbstractRealPoliceEventHandler.cs" />
+    <Compile Include="API\Handlers\AmbientPedEventHandler.cs" />
     <Compile Include="API\Handlers\AmbientVehicleEventHandler.cs" />
     <Compile Include="API\Handlers\CustomPulloverEventHandler.cs" />
     <Compile Include="API\EventsManager.cs" />
     <Compile Include="API\Events\CustomPulloverEvent.cs" />
     <Compile Include="API\Events\GiveParkingTicketEvent.cs" />
     <Compile Include="API\Functions.cs" />
+    <Compile Include="API\Interfaces\I_AmbientEvent.cs" />
     <Compile Include="API\Interfaces\I_RealPoliceHandler.cs" />
     <Compile Include="API\Handlers\ParkingTicketsEventHandler.cs" />
     <Compile Include="API\Type\Enumerations.cs" />
@@ -82,7 +92,7 @@
     <Compile Include="API\Events\AmbientVehicle\MobilePhone.cs" />
     <Compile Include="API\Events\AmbientVehicle\Reckless.cs" />
     <Compile Include="API\Events\AmbientVehicle\SuspectVehicle.cs" />
-    <Compile Include="OffencesManager.cs" />
+    <Compile Include="AmbientVehicleEventManager.cs" />
     <Compile Include="PedsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

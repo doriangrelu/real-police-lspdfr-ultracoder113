@@ -1,16 +1,7 @@
 ﻿using Rage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Rage;
-using LSPD_First_Response.Mod.API;
 using RealPolicePlugin.Core;
-using RealPolicePlugin.API.Events.AmbientVehicle;
 
-namespace RealPolicePlugin.OffenceEvent
+namespace RealPolicePlugin.API.Events.AmbientVehicle
 {
     class MobilePhone : AbstractAmbientVehicleEvent
     {
@@ -18,7 +9,7 @@ namespace RealPolicePlugin.OffenceEvent
         public const string OFFENCE_MESSAGE = "Driver using phone";
 
 
-        public MobilePhone(Vehicle vehicle) : base(vehicle, MobilePhone.OFFENCE_MESSAGE)
+        public MobilePhone(Vehicle entity) : base(entity, MobilePhone.OFFENCE_MESSAGE)
         {
         }
 

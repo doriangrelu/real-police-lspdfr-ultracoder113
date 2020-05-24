@@ -3,18 +3,14 @@ using RealPolicePlugin.API.Events;
 using RealPolicePlugin.API.Events.AmbientVehicle;
 using RealPolicePlugin.API.Handlers;
 using RealPolicePlugin.API.Interfaces;
-using RealPolicePlugin.OffenceEvent;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
 namespace RealPolicePlugin.API
 {
     class EventsManager
     {
+
 
 
         private static List<GameFiber> _Fibers = new List<GameFiber>();
@@ -29,7 +25,7 @@ namespace RealPolicePlugin.API
                 {
                     fiber.Abort();
                 }
-                _Fibers.Remove(fiber); 
+                _Fibers.Remove(fiber);
             }
         }
 
@@ -51,13 +47,26 @@ namespace RealPolicePlugin.API
             parkingTicketsEventHandler.EventHandler += HandleGiveParkingTickets;
 
             AmbientVehicleEventHandler ambientVehicleEventHandler = new AmbientVehicleEventHandler();
-            ambientVehicleEventHandler.EventHandler += HandleRunAmbientVehicleEvent;
+            ambientVehicleEventHandler.EventHandler += HandleRunAmbientEvent;
+
+            AmbientPedEventHandler ambientPedEventHandler = new AmbientPedEventHandler();
+            ambientPedEventHandler.EventHandler += HandleRunAmbientEvent;
+
 
             handlers.Add(customPulloverEventHandler);
             handlers.Add(parkingTicketsEventHandler);
             handlers.Add(ambientVehicleEventHandler);
+            handlers.Add(ambientPedEventHandler);
 
             return handlers;
+        }
+
+        public static bool CanCreateAnEvent()
+        {
+            return false == FunctionsLSPDFR.IsCalloutRunning() &&
+                null == FunctionsLSPDFR.GetActivePursuit() &&
+                false == FunctionsLSPDFR.IsPlayerPerformingPullover() &&
+                false == Game.IsPaused;
         }
 
 
@@ -69,14 +78,21 @@ namespace RealPolicePlugin.API
             }
         }
 
+
+
+        public static void HandleSpeedEvent(object sender, AbstractAmbientVehicleEvent speedEvent)
+        {
+            Functions.RunAmbientEvent(speedEvent);
+        }
+
         public static void HandleGiveParkingTickets(object sender, GiveParkingTicketEvent giveParkingTicketEvent)
         {
             Functions.GiveParkingTicket(giveParkingTicketEvent);
         }
 
-        public static void HandleRunAmbientVehicleEvent(object sender, AbstractAmbientVehicleEvent offenceEvent)
+        public static void HandleRunAmbientEvent(object sender, I_AmbientEvent ambientEvent)
         {
-            Functions.RunAmbientVehicleEvent(offenceEvent);
+            Functions.RunAmbientEvent(ambientEvent);
         }
 
         public static void HandleSetCustomPullover(object sender, CustomPulloverEvent customPulloverEvent)

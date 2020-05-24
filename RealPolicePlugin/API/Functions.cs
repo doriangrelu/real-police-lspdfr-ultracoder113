@@ -1,15 +1,12 @@
-﻿using Rage;
+﻿using LSPD_First_Response.Mod.API;
+using Rage;
 using Rage.Native;
 using RealPolicePlugin.API.Events;
-using RealPolicePlugin.API.Events.AmbientVehicle;
 using RealPolicePlugin.API.Handlers;
+using RealPolicePlugin.API.Interfaces;
 using RealPolicePlugin.Core;
-using RealPolicePlugin.OffenceEvent;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
 namespace RealPolicePlugin.API
@@ -18,15 +15,48 @@ namespace RealPolicePlugin.API
     {
 
 
-        public static void RunAmbientVehicleEvent(AbstractAmbientVehicleEvent offenceEvent)
+
+        public static void Dispatch()
         {
-            offenceEvent.Prepare();
+            PedsManager.LocalPlayer().Tasks.ClearImmediately();
+            FunctionsLSPDFR.PlayScannerAudio("OFFICER_INTRO_02");
+
+            PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_enter", 0.7f, AnimationFlags.UpperBodyOnly | AnimationFlags.StayInEndFrame).WaitForCompletion(1500);
+
+            GameFiber.Wait(2000);
+            PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_exit", 1.0f, AnimationFlags.UpperBodyOnly);
+            GameFiber.Wait(500);
+
+            FunctionsLSPDFR.PlayScannerAudioUsingPosition("DISPATCH_INTRO_01  DISP_ATTENTION_UNIT DIV_01 ADAM BEAT_12 WE_HAVE_01 CRIME_RESIST_ARREST IN_OR_ON_POSITION", PedsManager.LocalPlayer().Position); //todo sounds
+            GameFiber.Wait(1000);
+            Game.DisplayNotification("~b~Officer ~o~report crime, ~r~all units responds code 3");
+        }
+
+        public static void ReportCrime(Ped ped, bool dispatchWithRadio)
+        {
+            LHandle pursuit = FunctionsLSPDFR.CreatePursuit();
+            FunctionsLSPDFR.AddPedToPursuit(pursuit, ped);
+            if (dispatchWithRadio)
+            {
+                Dispatch();
+            }
+        }
+
+
+        public static void ReportCrime(Ped ped)
+        {
+            ReportCrime(ped, false);
+        }
+
+        public static void RunAmbientEvent(I_AmbientEvent ambientEvent)
+        {
+            ambientEvent.Prepare();
             try
             {
-                offenceEvent.OnBeforeStartEvent();
-                while (offenceEvent.IsRunning())
+                ambientEvent.OnBeforeStartEvent();
+                while (ambientEvent.IsRunning())
                 {
-                    offenceEvent.OnProcessEvent();
+                    ambientEvent.OnProcessEvent();
                     GameFiber.Yield();
                 }
             }
@@ -37,7 +67,7 @@ namespace RealPolicePlugin.API
             }
             finally
             {
-                offenceEvent.OnEndEvent();
+                ambientEvent.OnEndEvent();
             }
         }
 
@@ -48,11 +78,11 @@ namespace RealPolicePlugin.API
             Vehicle vehicle = parkingTicketEvent.Vehicle;
             string modelName = vehicle.Model.Name.ToLower();
             string licencePlate = vehicle.LicensePlate;
-            string lexemArticle = ParkingTicketsEventHandler.Vowels.Contains<string>(modelName[0].ToString()) ? "an" : "a";
+            string lexemArticle = ParkingTicketsEventHandler.vowels.Contains<string>(modelName[0].ToString()) ? "an" : "a";
 
             string licencePlateAudioMessage = "";
 
-            if (ParkingTicketsEventHandler.Numbers.Contains<string>(modelName.Last().ToString()))
+            if (ParkingTicketsEventHandler.numbers.Contains<string>(modelName.Last().ToString()))
             {
                 modelName = modelName.Substring(0, modelName.Length - 1);
             }
@@ -83,11 +113,16 @@ namespace RealPolicePlugin.API
             notepad.Delete();
 
             vehicle.IsPersistent = false;
+
+            FunctionsLSPDFR.PlayScannerAudio("OFFICER_INTRO_02 INSERT_05");
             PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_enter", 0.7f, AnimationFlags.UpperBodyOnly | AnimationFlags.StayInEndFrame).WaitForCompletion(1500);
+
             GameFiber.Sleep(2000);
-            FunctionsLSPDFR.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 ILLEGALLY_PARKED_VEHICLE IN_OR_ON_POSITION INTRO_02  OUTRO_03 TARGET_VEHICLE_LICENCE_PLATE UHH" + licencePlateAudioMessage + " NOISE_SHORT CODE4_ADAM OFFICER_INTRO_02 PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
             PedsManager.LocalPlayer().Tasks.PlayAnimation("random@arrests", "generic_radio_exit", 1.0f, AnimationFlags.UpperBodyOnly);
-            ParkingTicketsEventHandler.AlreadyGivedTicketsLicencePlateCollection.Add(vehicle.LicensePlate);
+
+            FunctionsLSPDFR.PlayScannerAudioUsingPosition("INTRO_01 OFFICERS_REPORT_02 ILLEGALLY_PARKED_VEHICLE IN_OR_ON_POSITION INTRO_02  OUTRO_03 TARGET_VEHICLE_LICENCE_PLATE UHH" + licencePlateAudioMessage + " NOISE_SHORT CODE4_ADAM OFFICER_INTRO_02 PROCEED_WITH_PATROL NOISE_SHORT OUTRO_02", PedsManager.LocalPlayer().Position);
+
+            ParkingTicketsEventHandler.alreadyGivedTicketsLicencePlateCollection.Add(vehicle.LicensePlate);
 
         }
 

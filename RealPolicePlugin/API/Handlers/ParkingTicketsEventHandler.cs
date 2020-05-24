@@ -1,16 +1,11 @@
-﻿using LSPD_First_Response.Mod.API;
-using Rage;
-using RealPolicePlugin.API.Events;
-using RealPolicePlugin.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Rage;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
-using System.Drawing;
+using RealPolicePlugin.API.Events;
 using RealPolicePlugin.API.Type;
+using RealPolicePlugin.Core;
+using System.Collections.Generic;
+using System.Drawing;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
 namespace RealPolicePlugin.API.Handlers
@@ -22,17 +17,17 @@ namespace RealPolicePlugin.API.Handlers
 
         private const float MAXIMUM_DIST_VEH = 3.5F;
         private const string K_OPEN_MENU = "ParkingTicketMenu";
-        public static List<string> AlreadyGivedTicketsLicencePlateCollection = new List<string>();
+        public static readonly List<string> alreadyGivedTicketsLicencePlateCollection = new List<string>();
 
-        public static string[] Vowels = new string[] { "a", "e", "o", "i", "u" };
-        public static string[] Numbers = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+        public static string[] vowels = new string[] { "a", "e", "o", "i", "u" };
+        public static string[] numbers = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
 
 
 
-        private static UIMenu _Menu = null;
-        private static UIMenuItem _DangerousParkedVehicle;
-        private static UIMenuItem _MissingTicketsParkedVehicle;
-        private static UIMenuItem _Infos;
+        private static UIMenu menu = null;
+        private static UIMenuItem dangerousParkedVehicle;
+        private static UIMenuItem missingTicketsParkedVehicle;
+        private static UIMenuItem infos;
 
 
         public ParkingTicketsEventHandler()
@@ -44,14 +39,14 @@ namespace RealPolicePlugin.API.Handlers
         {
             get
             {
-                if (null == _Infos)
+                if (null == infos)
                 {
-                    _Infos = new UIMenuItem("None");
-                    _Infos.ForeColor = Color.Blue;
-                    Menu.AddItem(_Infos);
+                    infos = new UIMenuItem("None");
+                    infos.ForeColor = Color.Blue;
+                    Menu.AddItem(infos);
                 }
 
-                return _Infos;
+                return infos;
             }
         }
 
@@ -59,25 +54,25 @@ namespace RealPolicePlugin.API.Handlers
         {
             get
             {
-                if (null == _Menu)
+                if (null == menu)
                 {
-                    _Menu = new UIMenu("Parking ticket", "By Ultracodder113");
+                    menu = new UIMenu("Parking ticket", "By Ultracodder113");
 
-                    UICustomMenuManager.MenuPool.Add(_Menu);
+                    UICustomMenuManager.MenuPool.Add(menu);
 
-                    _DangerousParkedVehicle = new UIMenuItem("Dangerous parked vehicle - 375$");
-                    _MissingTicketsParkedVehicle = new UIMenuItem("Awkward parked vehicle - 275$");
+                    dangerousParkedVehicle = new UIMenuItem("Dangerous parked vehicle - 375$");
+                    missingTicketsParkedVehicle = new UIMenuItem("Awkward parked vehicle - 275$");
 
 
-                    _DangerousParkedVehicle.ForeColor = Color.Red;
-                    _MissingTicketsParkedVehicle.ForeColor = Color.Orange;
+                    dangerousParkedVehicle.ForeColor = Color.Red;
+                    missingTicketsParkedVehicle.ForeColor = Color.Orange;
 
-                    _Menu.AddItem(_DangerousParkedVehicle);
-                    _Menu.AddItem(_MissingTicketsParkedVehicle);
+                    menu.AddItem(dangerousParkedVehicle);
+                    menu.AddItem(missingTicketsParkedVehicle);
 
-                    UICustomMenuManager.MenuPool.Add(_Menu);
+                    UICustomMenuManager.MenuPool.Add(menu);
                 }
-                return _Menu;
+                return menu;
 
             }
         }
@@ -101,9 +96,9 @@ namespace RealPolicePlugin.API.Handlers
         {
             if (sender != Menu) return;
 
-            if (selectedItem == _DangerousParkedVehicle || selectedItem == _MissingTicketsParkedVehicle)
+            if (selectedItem == dangerousParkedVehicle || selectedItem == missingTicketsParkedVehicle)
             {
-                ParkingTicketsOffences offenceType = (selectedItem == _DangerousParkedVehicle) ? ParkingTicketsOffences.DANGEROUS : ParkingTicketsOffences.AWKWARD;
+                ParkingTicketsOffences offenceType = (selectedItem == dangerousParkedVehicle) ? ParkingTicketsOffences.DANGEROUS : ParkingTicketsOffences.AWKWARD;
                 GiveParkingTicketEvent giveParkingTicketEvent = new GiveParkingTicketEvent(VehicleManager.GetNearbyVehicle(), offenceType);
                 this.OnEventHandler(giveParkingTicketEvent);
                 UICustomMenuManager.MenuPool.CloseAllMenus();
@@ -124,7 +119,7 @@ namespace RealPolicePlugin.API.Handlers
             {
                 return false;
             }
-            if (ParkingTicketsEventHandler.AlreadyGivedTicketsLicencePlateCollection.Contains(vehicle.LicensePlate))
+            if (ParkingTicketsEventHandler.alreadyGivedTicketsLicencePlateCollection.Contains(vehicle.LicensePlate))
             {
                 Game.DisplayNotification("You have ~o~already given that vehicle a ~b~parking ticket");
                 FunctionsLSPDFR.PlayScannerAudio("BEEP");

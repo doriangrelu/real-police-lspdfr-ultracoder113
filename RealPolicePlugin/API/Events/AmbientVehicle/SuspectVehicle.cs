@@ -1,15 +1,8 @@
-﻿using LSPD_First_Response.Mod.API;
-using Rage;
-using RealPolicePlugin.API.Events.AmbientVehicle;
+﻿using Rage;
 using RealPolicePlugin.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FunctionsLSPDFR = LSPD_First_Response.Mod.API.Functions;
 
-namespace RealPolicePlugin.OffenceEvent
+namespace RealPolicePlugin.API.Events.AmbientVehicle
 {
     class SuspectVehicle : AbstractAmbientVehicleEvent
     {
@@ -18,7 +11,7 @@ namespace RealPolicePlugin.OffenceEvent
 
         private float OldSpeed = 0.0F;
 
-        public SuspectVehicle(Vehicle vehicle) : base(vehicle, SuspectVehicle.OFFENCE_MESSAGE)
+        public SuspectVehicle(Vehicle entity) : base(entity, SuspectVehicle.OFFENCE_MESSAGE)
         {
         }
 
